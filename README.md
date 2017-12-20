@@ -5,7 +5,9 @@ Just extra Pytorch library.
 ## Usage
 `from tinder import *`
 
-## AssertSize (WIP)
+## Common Layers
+
+### AssertSize
 Assert that the input tensor's size is (d1, d2, ..).
 
 ```
@@ -18,9 +20,9 @@ net = nn.Sequential(
 ```
 
 
-## Flatten (WIP)
-Input: (N, ..)
-Output: (N, -1)
+### Flatten
+`tinder.Flatten()`
+Flatten to `[N, -1]`.
 
 ```
 net = nn.Sequential(
@@ -37,7 +39,25 @@ net = nn.Sequential(
 )
 ```
 
-## ThreadedDataLoader (WIP)
+### View
+`tinder.View(3, -1, 256)`
+The batch dimension is implicit.
+The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
+
+
+## GAN
+### PixelwiseNormalizer
+Needed in Progressive Growing GAN.
+`x = F.normalize(x, p=2,eps=1e-8)`
+
+### GradientPenalty (WIP)
+Needed in improved WGAN.
+
+
+
+## DataLoader
+
+### ThreadedDataLoader (WIP)
 A DataLoader using multithreading instead of multiprocessing.
 
 - Good: No crash with opencv
@@ -50,8 +70,7 @@ Opencv has its own threadpool and states. When DataLoader creates multiple worke
 - pthread's fork only copies the main thread, and opencv thinks it has many threads while in fact it has only one thread.
   some people work around this by temporary solutions. see the above issue.
 - OpenCL/CUDA are doing something in background during fork.
- 
 
-## LokyDataLoader (WIP)
+
+### LokyDataLoader (WIP)
 A DataLoader using a multiprocessing library Loky.
-
