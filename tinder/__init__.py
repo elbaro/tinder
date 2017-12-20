@@ -1,12 +1,17 @@
 import torch
 import torch.nn as nn
-import torch.nn.Functional as F
+import torch.nn.functional as F
 
 
 class AssertSize(nn.Module):
+    # size is a list of dimensions.
+    # dimension is a positive number, -1, or None
     def __init__(self, *size):
         super().__init__()
-        self.size = size
+        self.size = [s if s != -1 else None for s in size]
+
+    def __repr__(self):
+        return f'AssertSize({self.size})'
 
     def forward(self, x):
         size = x.size()
@@ -24,15 +29,16 @@ class Flatten(nn.Module):
 
 
 class View(nn.Module):
-    def __init__(self, size):
+    def __init__(self, *size):
         super().__init__()
         self.size = size
+        self.size = [s if s != -1 else None for s in size]
 
     def forward(self, x):
         return x.view(x.size(0), *self.size)
 
 
-class PixelwiseNormalizer(nn.Module):
+class PixelwiseNormalize(nn.Module):
     def forward(self, x):
         return F.normalize(x, p=2, eps=1e-8)
 

@@ -46,7 +46,7 @@ The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
 
 
 ## GAN
-### PixelwiseNormalizer
+### PixelwiseNormalize
 Needed in Progressive Growing GAN.
 `x = F.normalize(x, p=2,eps=1e-8)`
 
