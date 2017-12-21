@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 
 class AssertSize(nn.Module):
@@ -46,14 +47,22 @@ class PixelwiseNormalize(nn.Module):
 # improved wgan loss for D
 # see https://arxiv.org/pdf/1704.00028.pdf
 
+class WScaleLayer(nn.Module):
+    def __init__(self):
+        pass
+
+    def forward(self, x):
+        return x
+
+
 def wgan_gp(D, real_img, fake_img):
     # (grads*grads).mean().sqrt()
     batch_size = real_img.size(0)
-    e = torch.cuda.FloatTensor(batch_size).random_()
+    e = Variable(torch.cuda.FloatTensor(batch_size).random_())
     x_hat = (e * real_img + (1 - e) * fake_img).detach()
     score = D(x_hat)
     grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
-    norms = grads.view(batch_size,-1).norm(2, dim=1)
+    norms = grads.view(batch_size, -1).norm(2, dim=1)
     return ((norms - 1) ** 2).mean()
 
 
@@ -65,4 +74,3 @@ def DataLoaderIterator(loader, num=None, last_step=0):
             if step > num:
                 return
             yield step, batch
-
