@@ -62,10 +62,10 @@ Needed in improved WGAN.
 Convenient DataLoader wrapper when you need to iterate more than a full batch.
 ```py
 loader = DataLoader(num_workers=8)
-for step, batch in DataLoaderIterator(loader, num=1000):
+for step, batch in DataLoaderIterator(loader):
     pass
-for step, batch in DataLoaderIterator(loader, num=None):
-    pass
+for step, _ in DataLoaderIterator(loader, num=6, last_step=2):
+    print(step)  # 3, 4, 5, 6
 ```
 `num=None` means infinite iteration.
 It is recommended to set `drop_last=False` in your DataLoader.

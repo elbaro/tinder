@@ -46,12 +46,12 @@ class PixelwiseNormalize(nn.Module):
 # improved wgan loss for D
 # see https://arxiv.org/pdf/1704.00028.pdf
 
-def wgan_gp(self, D, real_img, fake_img):
+def wgan_gp(D, real_img, fake_img):
     # (grads*grads).mean().sqrt()
     batch_size = real_img.size(0)
     e = torch.cuda.FloatTensor(batch_size).random_()
     x_hat = (e * real + (1 - e) * fake).detach()
-    score = self.D(x_hat)
+    score = D(x_hat)
     grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
 
     return ((grads.norm(2, dim=1) - 1) ** 2).mean()
