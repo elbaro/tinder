@@ -57,6 +57,20 @@ Needed in improved WGAN.
 
 ## DataLoader
 
+### DataLoaderIterator
+`def DataLoaderIterator(loader, num=None, last_step=0)`
+Convenient DataLoader wrapper when you need to iterate more than a full batch.
+```py
+loader = DataLoader(num_workers=8)
+for step, batch in DataLoaderIterator(loader, num=1000):
+    pass
+for step, batch in DataLoaderIterator(loader, num=None):
+    pass
+```
+`num=None` means infinite iteration.
+It is recommended to set `drop_last=False` in your DataLoader.
+
+
 ### ThreadedDataLoader (WIP)
 A DataLoader using multithreading instead of multiprocessing.
 

@@ -62,3 +62,13 @@ class GradientPenaltyLoss(nn.Module):
         pdb.set_trace()
 
         return ((grads.norm(2, dim=1) - 1) ** 2).mean()
+
+
+def DataLoaderIterator(loader, num=None, last_step=0):
+    step = last_step
+    while True:
+        for batch in loader:
+            step += 1
+            if step > num:
+                return
+            yield step, batch
