@@ -45,23 +45,16 @@ class PixelwiseNormalize(nn.Module):
 
 # improved wgan loss for D
 # see https://arxiv.org/pdf/1704.00028.pdf
-class GradientPenaltyLoss(nn.Module):
-    def __init__(self, D, e):
-        super().__init__()
-        self.__dict__['D'] = D  # weak reference. D is not a submodule
-        self.e = e
-        self.x_hat = 0
 
-    def forward(self, real, fake):
-        # (grads*grads).mean().sqrt()
-        x_hat = (self.e * real + (1 - self.e) * fake).detach()
-        score = self.D(x_hat)
-        grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
+def wgan_gp(self, D, real_img, fake_img):
+    # (grads*grads).mean().sqrt()
+    batch_size = real_img.size(0)
+    e = torch.cuda.FloatTensor(batch_size).random_()
+    x_hat = (e * real + (1 - e) * fake).detach()
+    score = self.D(x_hat)
+    grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
 
-        import pdb
-        pdb.set_trace()
-
-        return ((grads.norm(2, dim=1) - 1) ** 2).mean()
+    return ((grads.norm(2, dim=1) - 1) ** 2).mean()
 
 
 def DataLoaderIterator(loader, num=None, last_step=0):
