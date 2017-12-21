@@ -32,7 +32,7 @@ class View(nn.Module):
     def __init__(self, *size):
         super().__init__()
         self.size = size
-        self.size = [s if s != -1 else None for s in size]
+        self.size = [s if s != None else -1 for s in size]
 
     def forward(self, x):
         return x.view(x.size(0), *self.size)
@@ -50,7 +50,7 @@ def wgan_gp(D, real_img, fake_img):
     # (grads*grads).mean().sqrt()
     batch_size = real_img.size(0)
     e = torch.cuda.FloatTensor(batch_size).random_()
-    x_hat = (e * real + (1 - e) * fake).detach()
+    x_hat = (e * real_img + (1 - e) * fake_img).detach()
     score = D(x_hat)
     grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
 
