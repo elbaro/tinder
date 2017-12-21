@@ -53,8 +53,8 @@ def wgan_gp(D, real_img, fake_img):
     x_hat = (e * real + (1 - e) * fake).detach()
     score = D(x_hat)
     grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
-
-    return ((grads.norm(2, dim=1) - 1) ** 2).mean()
+    norms = grads.view(batch_size,-1).norm(2, dim=1)
+    return ((norms - 1) ** 2).mean()
 
 
 def DataLoaderIterator(loader, num=None, last_step=0):
@@ -65,3 +65,4 @@ def DataLoaderIterator(loader, num=None, last_step=0):
             if step > num:
                 return
             yield step, batch
+
