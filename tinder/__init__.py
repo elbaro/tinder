@@ -58,7 +58,7 @@ class WScaleLayer(nn.Module):
 def wgan_gp(D, real_img, fake_img):
     # (grads*grads).mean().sqrt()
     batch_size = real_img.size(0)
-    e = Variable(torch.cuda.FloatTensor(batch_size).random_())
+    e = Variable(torch.cuda.FloatTensor(batch_size).random_().view(batch_size, 1, 1, 1))
     x_hat = (e * real_img + (1 - e) * fake_img).detach()
     score = D(x_hat)
     grads = torch.autograd.grad(score, x_hat, retain_graph=True, create_graph=True)
