@@ -1,5 +1,7 @@
 # tinder
 
+[![Build Status](https://travis-ci.org/elbaro/tinder.svg?branch=master)](https://travis-ci.org/elbaro/tinder)
+
 Just extra Pytorch library.
 
 ## Usage
