@@ -32,8 +32,7 @@ class Flatten(nn.Module):
 class View(nn.Module):
     def __init__(self, *size_without_batch_dim):
         super().__init__()
-        self.size = size
-        self.size = [s if s != None else -1 for s in size]
+        self.size = [s if s != None else -1 for s in size_without_batch_dim]
 
     def forward(self, x):
         return x.view(x.size(0), *self.size)
@@ -52,9 +51,9 @@ class WeightScale(nn.Module):
         super().__init__()
 
         if init_with_leakiness is not None:
-            torch.nn.init.kaiming_normal(prev_layer.weight, a=init_with_leaky)
+            torch.nn.init.kaiming_normal(prev_layer.weight, a=init_with_leakiness)
 
-        self.scale = Parameter(torch.cuda.FloatTensor(1), requires_grad=False)
+        self.scale = torch.nn.Parameter(torch.cuda.FloatTensor(1), requires_grad=False)
         self.scale.data[0] = torch.mean(prev_layer.weight.data ** 2) ** 0.5 + 1e-8
         prev_layer.weight.data.div_(self.scale.data[0])
 
