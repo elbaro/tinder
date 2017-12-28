@@ -5,7 +5,8 @@ python:
   - "nightly"
 # command to install dependencies
 install:
-  - pip setup.py install
+  - pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl
+  - python setup.py install
 # command to run tests
 script:
   - pytest tinder/
