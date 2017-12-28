@@ -3,11 +3,13 @@
 Just extra Pytorch library.
 
 ## Usage
+
 `from tinder import *`
 
-## Common Layers
+## Basic Layers
 
 ### AssertSize
+
 Assert that the input tensor's size is (d1, d2, ..).
 
 ```
@@ -19,8 +21,8 @@ net = nn.Sequential(
 )
 ```
 
-
 ### Flatten
+
 `tinder.Flatten()`
 Flatten to `[N, -1]`.
 
@@ -40,26 +42,58 @@ net = nn.Sequential(
 ```
 
 ### View
+
 `tinder.View(3, -1, 256)`
 The batch dimension is implicit.
 The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
 
+## Advanced Layers
 
-## GAN
+### WeightScale
+
+```
+conv = nn.Conv2d(3, 64, kernel_size=3, padding=1)
+ws = WeightScale(conv)
+nn.Sequential(
+    tinder.WeightScale()
+)
+```
+
 ### PixelwiseNormalize
-Needed in Progressive Growing GAN.
-`x = F.normalize(x, p=2,eps=1e-8)`
 
-### GradientPenalty (WIP)
-Needed in improved WGAN.
+Input : [N, C, H, W]
 
+```
+x = tinder.PixelwiseNormalize()(x)
+```
 
+### MinibatchStddev
+
+Input : [N, C, H, W]
+Output: [N, C+1, H, W]
+`class MinibatchStddev()`
+`forward(x)`
+
+## GAN Utility
+
+### wgan_gp
+
+```
+gp = tinder.wgan_gp(D, real_img, fake_img)
+loss = lambda*gp
+```
+
+### sliced_wasserstein_distance (WIP)
+
+.
 
 ## DataLoader
 
 ### DataLoaderIterator
+
 `def DataLoaderIterator(loader, num=None, last_step=0)`
 Convenient DataLoader wrapper when you need to iterate more than a full batch.
+
 ```py
 loader = DataLoader(num_workers=8)
 for step, batch in DataLoaderIterator(loader):
@@ -67,24 +101,26 @@ for step, batch in DataLoaderIterator(loader):
 for step, _ in DataLoaderIterator(loader, num=6, last_step=2):
     print(step)  # 3, 4, 5, 6
 ```
+
 `num=None` means infinite iteration.
 It is recommended to set `drop_last=False` in your DataLoader.
 
-
 ### ThreadedDataLoader (WIP)
+
 A DataLoader using multithreading instead of multiprocessing.
 
-- Good: No crash with opencv
-- Bad: Slow
+* Good: No crash with opencv
+* Bad: Slow
 
 The curent Pytorch's DataLoader has a crash [issue](https://github.com/opencv/opencv/issues/5150).
 It turns out most crashes happen when your loader augments images with opencv and iterates fast.
 
 Opencv has its own threadpool and states. When DataLoader creates multiple workers with fork, it doesn't clone all states.
-- pthread's fork only copies the main thread, and opencv thinks it has many threads while in fact it has only one thread.
-  some people work around this by temporary solutions. see the above issue.
-- OpenCL/CUDA are doing something in background during fork.
 
+* pthread's fork only copies the main thread, and opencv thinks it has many threads while in fact it has only one thread.
+  some people work around this by temporary solutions. see the above issue.
+* OpenCL/CUDA are doing something in background during fork.
 
 ### LokyDataLoader (WIP)
+
 A DataLoader using a multiprocessing library Loky.
