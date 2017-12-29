@@ -44,7 +44,7 @@ class View(nn.Module):
 
 # How to use:
 # prev_layer is initialized with He init ~ N(0, sqrt(2/fan_in..))
-# __init__ -> Make prev_layer.weight's std to 1
+# __init__ -> Make prev_layer.weight's std to 1 && set bias to 0
 # forward -> Make std back to He sqrt(2/fan_in..).
 class WeightScale(nn.Module):
     def __init__(self, prev_layer, init_with_leakiness=None):
@@ -59,6 +59,7 @@ class WeightScale(nn.Module):
 
         if prev_layer.bias is not None:
             self.bias = prev_layer.bias
+            self.bias.data.zero_()
             prev_layer.bias = None
         else:
             self.bias = None
