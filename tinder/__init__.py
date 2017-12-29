@@ -122,3 +122,11 @@ def DataLoaderIterator(loader, num=None, last_step=0):
             if step > num:
                 return
             yield step, batch
+
+
+def copy_opt_state(old: torch.optim.Optimzer, new: torch.optim.Optimizer):
+    for group in new.param_groups:
+        for parameter in group['params']:
+            if parameter in old.state:
+                # e.g. {'step', 'exp_avg', ..}
+                new.state[parameter] = old.state[parameter]
