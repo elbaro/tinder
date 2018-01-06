@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from .nn import *
 from .dataset import *
-
+from .monitor import *
 
 class AssertSize(nn.Module):
     # size is a list of dimensions.
