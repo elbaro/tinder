@@ -49,7 +49,7 @@ net = nn.Sequential(
 The batch dimension is implicit.
 The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
 
-## Advanced Layers
+## NN
 
 ### WeightScale
 
@@ -89,7 +89,7 @@ loss = lambda*gp
 
 .
 
-## DataLoader
+## Dataset / DataLoader
 
 ### DataLoaderIterator
 
@@ -105,7 +105,24 @@ for step, _ in DataLoaderIterator(loader, num=6, last_step=2):
 ```
 
 `num=None` means infinite iteration.
-It is recommended to set `drop_last=False` in your DataLoader.
+It is recommended to set `drop_last=True` in your DataLoader.
+
+### BalancedDataLoader
+
+If your dataset is unbalanced, this wrapper provides a uniform sampling.
+
+`dataset` torch Dataset, list, or any sequence with known length.
+
+`classes` a list of hashable type.
+
+```
+def BalancedDataLoader(dataset, classes, **kwargs)
+```
+
+```
+# -3 is sampled twice as many as 2 or 3.
+loader = BalancedDataLoader([-3,5,2,3], ['R','G','B','B'], **kwargs)
+```
 
 ### ThreadedDataLoader (WIP)
 

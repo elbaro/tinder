@@ -1,5 +1,5 @@
 import torch
 import tinder
 
-def test_nothing():
+def test_pass():
     pass
