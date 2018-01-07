@@ -3,16 +3,18 @@
 [![Build Status](https://travis-ci.org/elbaro/tinder.svg?branch=master)](https://travis-ci.org/elbaro/tinder)
 
 Just extra Pytorch library.
+Documentation is [here](http://tinder.readthedocs.org/).
+
 
 ## Usage
 
 `from tinder import *`
 
+
 ## TODO
 
 ### sliced_wasserstein_distance (WIP)
 
-.
 
 ### ThreadedDataLoader (WIP)
 
