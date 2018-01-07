@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+
 class Stat(object):
     """A small class that calculates the statistics for a scalar metric.
     This is useful to calcaulate accuracies and losses across minibatches.
@@ -16,19 +17,17 @@ class Stat(object):
         alpha (float): coefficient for exponential moving average.
     """
 
-
-    def __init__(self, alpha:float = 1):
+    def __init__(self, alpha: float = 0.6):
         self.alpha = alpha
         self.clear()
 
-    def update(self, value, count:int = 1):
+    def update(self, value, count: int = 1):
         """Update stats with new samples.
 
         Args:
             value (int or float): new sample, or average of multiple samples.
             count (int): Defaults to 1. This is useful when batch size is not uniform.
         """
-
 
         self.count += count
         self.sum += value
@@ -37,7 +36,9 @@ class Stat(object):
         if self.ema is None:
             self.ema = value
         else:
-            self.ema = self.alpha*value + (1-self.alpha)*self.ema
+            self.ema = self.alpha * value + (1 - self.alpha) * self.ema
+
+        return self.ema
 
     @property
     def average(self) -> float:
