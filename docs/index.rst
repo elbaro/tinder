@@ -1,15 +1,17 @@
-.. tinder documentation master file, created by
-   sphinx-quickstart on Sun Jan  7 07:22:18 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to tinder's documentation!
+Tinder - extra utils for PyTorch
 ==================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. automodule:: tinder
+    :members:
 
+.. automodule:: tinder.nn
+    :members:
+
+.. automodule:: tinder.monitor
+    :members:
+
+.. automodule:: tinder.dataset
+    :members:
 
 
 Indices and tables
@@ -18,3 +20,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
