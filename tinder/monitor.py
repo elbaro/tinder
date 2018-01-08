@@ -66,11 +66,11 @@ class Stats(SimpleNamespace):
     """
 
     def __init__(self, **stats):
-        self.stats = stats
+        super().__init__(**stats)
 
     def clear(self):
         """Clear all stats.
         """
 
-        for stat in self.stats.values():
+        for stat in self.__dict__.values():
             stat.clear()
