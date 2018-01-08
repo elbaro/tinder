@@ -66,7 +66,7 @@ class Stats(SimpleNamespace):
     """
 
     def __init__(self, **stats):
-        super().__init__(**stats)
+        self.stats = stats
 
     def clear(self):
         """Clear all stats.
