@@ -1,7 +1,8 @@
 import redis
 
+
 class RedisQueue(object):
-    def __init__(self, queue, redis_client=None):
+    def __init__(self, queue: str, redis_client=None):
         self.queue = queue
         if redis_client == None:
             redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
@@ -16,12 +17,11 @@ class RedisQueue(object):
     def push(self, datum):
         self.client.rpush(self.queue, datum)
 
-    def pop_at_least_one(self, max_num=1):
+    def pop_at_least_one(self, max_num: int = 1):
         """
         pop a batch of elements. return at least one.
         Args:
             max_num (int): maximum number of samples to pop.
-            timeout (int): maximum number of seconds to wait. 0 means no timeout.
 
         Returns:
             a list of elements.
