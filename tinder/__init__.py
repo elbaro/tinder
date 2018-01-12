@@ -3,6 +3,7 @@ import torch.nn as nn
 from .nn import *
 from .dataset import *
 from .monitor import *
+from .serving import *
 
 
 class AssertSize(nn.Module):
