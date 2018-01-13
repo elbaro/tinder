@@ -3,8 +3,7 @@ import time
 
 
 class RedisQueue(object):
-    def __init__(self, queue: str, unique_history: bool = False, soft_capacity=None, redis_client=None):
-        """
+    """
         A FIFO queue based on Redis. Can be used by multiple workers.
         Workers can share the queue by specifying the same queue name.
 
@@ -13,7 +12,8 @@ class RedisQueue(object):
             unique_history (bool): Any element that is ever pushed into the queue is not pushed again.
             soft_capacity (int): The max size of queue. This is 'soft' because the queue can grow up to `soft_capacity+(number of workers)-1`.
             redis_client: if not provided, the default one is created.
-        """
+    """
+    def __init__(self, queue: str, unique_history: bool = False, soft_capacity=None, redis_client=None):
         self.queue = queue
         self.unique_history = unique_history
         if self.unique_history:
