@@ -13,6 +13,9 @@ Tinder - extra utils for PyTorch
 .. automodule:: tinder.dataset
     :members:
 
+.. automodule:: tinder.serving
+   :members:
+
 
 Indices and tables
 ==================
