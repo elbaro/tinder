@@ -13,6 +13,7 @@ class RedisQueue(object):
             soft_capacity (int): The max size of queue. This is 'soft' because the queue can grow up to `soft_capacity+(number of workers)-1`.
             redis_client: if not provided, the default one is created.
     """
+
     def __init__(self, queue: str, unique_history: bool = False, soft_capacity=None, redis_client=None):
         self.queue = queue
         self.unique_history = unique_history
@@ -24,7 +25,7 @@ class RedisQueue(object):
         self.cooldown = 0.1
         self.client = redis_client
 
-    def clear(self, history:bool=False):
+    def clear(self, history: bool = False):
         """
         Empty the queue.
 

@@ -44,5 +44,5 @@ def test_unique_queue():
     q.push(0)
     q.push(0.0)
     batch = q.pop_at_least_one(3)
-    assert batch == ['0', '0.0']
+    assert batch == ['0.0']
     q.clear(history=True)

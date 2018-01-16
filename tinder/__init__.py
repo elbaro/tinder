@@ -4,6 +4,7 @@ from .nn import *
 from .dataset import *
 from .monitor import *
 from .serving import *
+from .runner import *
 
 
 class AssertSize(nn.Module):
