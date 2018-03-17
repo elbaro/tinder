@@ -2,6 +2,17 @@ import torch.utils.data
 from collections import Counter, Iterable
 
 
+def hash_group(s: str, mod: int):
+    """
+    Hash a string into 0~(mod-1).
+    Useful when you split a dataset into subsets.
+    """
+    v = 0
+    for c in s:
+        v = (v*7717 + ord(c)) % mod
+    return v
+
+
 def DataLoaderIterator(loader, num=None, last_step=0):
     """Convenient DataLoader wrapper when you need to iterate more than a full batch.
 

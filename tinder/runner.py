@@ -48,8 +48,10 @@ def setup(*, trace=True, pdb_on_error=True, parse_args=True, logger=True, args=N
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
         os.environ['mode'] = args.mode
         for unknown in unknowns:
-            if unknown[0] == '-': unknown = unknown[1:]
-            if unknown[0] == '-': unknown = unknown[1:]
+            if unknown[0] == '-':
+                unknown = unknown[1:]
+            if unknown[0] == '-':
+                unknown = unknown[1:]
             idx = unknown.find('=')
             if idx == -1:
                 os.environ[unknown] = '1'
@@ -59,7 +61,8 @@ def setup(*, trace=True, pdb_on_error=True, parse_args=True, logger=True, args=N
                 os.environ[unknown[:idx]] = unknown[idx + 1:]
 
     if logger:
-        import logging, tqdm
+        import logging
+        import tqdm
         log = logging.getLogger()
         log.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
