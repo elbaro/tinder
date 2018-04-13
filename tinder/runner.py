@@ -1,4 +1,4 @@
-def setup(*, trace=True, pdb_on_error=True, parse_args=True, logger=True, args=None):
+def setup(*, trace=True, pdb_on_error=True, parse_args=False, logger=True, args=None):
     """
     Setup convinient utils to run a python script for deep learning.
 
