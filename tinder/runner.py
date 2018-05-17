@@ -1,4 +1,4 @@
-def setup(*, trace=True, pdb_on_error=True, parse_args=False, logger=True, args=None):
+def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=True, args=None):
     """
     Setup convinient utils to run a python script for deep learning.
 
@@ -60,10 +60,10 @@ def setup(*, trace=True, pdb_on_error=True, parse_args=False, logger=True, args=
             else:
                 os.environ[unknown[:idx]] = unknown[idx + 1:]
 
-    if logger:
+    if logger_name is not None:
         import logging
         import tqdm
-        log = logging.getLogger()
+        log = logging.getLogger(logger_name)
         log.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
             '%(asctime)s [%(filename)16s:%(lineno)3s] %(message)s', datefmt='%m월%d일 %H시%M분')
@@ -82,3 +82,5 @@ def setup(*, trace=True, pdb_on_error=True, parse_args=False, logger=True, args=
         handler = TqdmLoggingHandler()
         handler.setFormatter(formatter)
         log.addHandler(handler)
+
+        return log

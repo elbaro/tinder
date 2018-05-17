@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 
 class WeightScale(nn.Module):
@@ -108,7 +107,7 @@ class MinibatchStddev(nn.Module):
         return x
 
 
-def loss_wgan_gp(D, real: torch.cuda.FloatTensor, fake: torch.cuda.FloatTensor) -> torch.autograd.Variable:
+def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     """Gradient Penalty for Wasserstein GAN.
 
     It generates random interpolations between the real and fake points,
@@ -126,17 +125,18 @@ def loss_wgan_gp(D, real: torch.cuda.FloatTensor, fake: torch.cuda.FloatTensor) 
 
     Args:
         D (callable): A discriminator. Typically `nn.Module` or a lambda function that returns the score.
-        real (torch.cuda.FloatTensor): real sample. Note this is not a `Variable`.
-        fake (torch.cuda.FloatTensor): fake sample. Note this is not a `Variable`.
+        real (torch.Tensor): real image batch.
+        fake (torch.Tensor): fake image batch.
 
     Returns:
-        (Variable): gradient penalty.
+        (torch.Tensor): gradient penalty. optimizing on this loss will update D.
     """
 
     batch_size = real.size(0)
-    e = torch.cuda.FloatTensor(batch_size).uniform_().view(batch_size, 1, 1, 1)
-    x_hat = Variable(e * real + (1 - e) * fake, requires_grad=True)
+    e = real.new_empty((batch_size,1,1,1), requires_grad=True).uniform_()
+    x_hat = (e * real + (1 - e) * fake).detach()
     scores = D(x_hat)
+
     grads = torch.autograd.grad(scores, x_hat, retain_graph=True, create_graph=True,
                                 grad_outputs=torch.ones_like(scores)
                                 )[0]
