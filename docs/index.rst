@@ -1,32 +1,27 @@
 Tinder - extra utils for PyTorch
 ==================================
 
-.. automodule:: tinder
-    :members:
+.. toctree ::
+    :maxdepth: 1
+    :caption: Training utils
 
-.. automodule:: tinder.nn
-    :members:
-
-.. automodule:: tinder.monitor
-    :members:
-
-.. automodule:: tinder.dataset
-    :members:
-
-.. automodule:: tinder.serving
-    :members:
-
-.. automodule:: tinder.runner
-    :members:
-
-.. automodule:: tinder.itertools
-    :members:
+    config
+    saver
+    monitor
 
 
-Indices and tables
-==================
+.. toctree ::
+    :maxdepth: 1
+    :caption: Extended classes
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    layers
+    dataset
+    itertools
+
+
+.. toctree ::
+    :maxdepth: 1
+    :caption: Serving
+
+    serving
 

@@ -1,0 +1,75 @@
+import os
+import torch
+
+class Saver(object):
+    """A helper class to save and load your model.
+
+    Example::
+
+        saver = Saver('/data/weights/', 'alexnet')
+        saver.load_latest(alexnet, opt)  # resume from the latest
+        for epoch in range(100):
+            ..
+            saver.save(alexnet, opt, epoch=epoch, score=acc)
+
+        # inference
+        saver.load_best(alexnet, opt=None) # no need for optimizer
+
+    The batch dimension is implicit.
+    The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
+
+    Args:
+        weight_dir (str): directory for your weights
+        model_name (str): name of your model (e.g. resnet152-cosine)
+    """
+
+    def __init__(self, weight_dir, model_name):
+        self.weight_dir = weight_dir
+        self.model_name = model_name
+        self.dir_path = weight_dir + '/' + model_name
+        os.makedirs(self.dir_path, exist_ok=True)
+        self.best_score = None
+
+    def path_for_epoch(self, epoch):
+        return self.dir_path + '/' + 'epoch_%04d.pth' % epoch
+
+    # ex. ~/imagenet/weights/alexnet/epoch_0001.pth
+    def save(self, module, opt, epoch, score=None):
+        if score != None:
+            if (self.best_score is None) or self.best_score < score:
+                self.best_score = score
+                with open(self.dir_path + '/best_epoch') as f:
+                    print(epoch, file=f)
+                    print(score, file=f)
+
+        dic = {
+            'net': module.state_dict(),
+            'epoch': epoch,
+        }
+        if opt:
+            dic['opt'] = opt.state_dict()
+
+        torch.save(dic, self.path_for_epoch(epoch))
+
+    def load(self, module, opt, epoch):
+        dic = torch.load(
+            self.path_for_epoch(epoch),
+            map_location=lambda storage, loc: storage)
+
+        module.load_state_dict(dic['net'])
+        assert epoch == dic['epoch']
+
+        if opt is not None:
+            opt.load_state_dict(dic['opt'])
+
+    def load_latest(self, module, opt):
+        latest:str = max(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
+        assert latest.startswith('epoch_') and latest.endswith('.pth')
+        self.load(int(latest[6:10]), module, opt)
+
+    def load_best(self, module, opt):
+        with open(self.dir_path + '/best_epoch') as f:
+            epoch = int(f.readline())
+            self.best_score = float(f.readline())
+
+        self.load(epoch, module, opt)
