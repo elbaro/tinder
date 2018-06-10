@@ -1,10 +1,10 @@
 import torch
 
-def instance_segmentation_iou(score: torch.Tensor, label: torch.Tensor):
+def instance_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch.Tensor:
     raise NotImplementedError()
     pass
 
-def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor):
+def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch.Tensor:
     """
 
     Calculate IOU per class.

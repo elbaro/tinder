@@ -94,17 +94,23 @@ class Saver(object):
         if opt is not None:
             opt.load_state_dict(dic['opt'])
 
-    def load_latest(self, module, opt):
+    def load_latest(self, module, opt) -> int:
         """Load the latest model.
 
         Args:
             module (nn.Module): model to load
             opt (Optimizer): optimizer to load
+
+        Return:
+            int: the epoch of the loaded model
         """
 
         latest:str = max(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         assert latest.startswith('epoch_') and latest.endswith('.pth')
-        self.load(int(latest[6:10]), module, opt)
+        epoch = int(latest[6:10])
+        self.load(epoch, module, opt)
+        return epoch
+
 
     def load_best(self, module, opt):
         """Load the best model.
