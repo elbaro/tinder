@@ -102,22 +102,34 @@ class Saver(object):
             opt (Optimizer): optimizer to load
 
         Return:
-            int: the epoch of the loaded model
+            int: the epoch of the loaded model. 0 if no model exists.
         """
 
-        latest:str = max(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
+        files = list(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
+        if len(files) == 0:
+            return 0
+
+        latest:str = max(files)
         assert latest.startswith('epoch_') and latest.endswith('.pth')
         epoch = int(latest[6:10])
         self.load(module, opt, epoch)
+
         return epoch
 
 
-    def load_best(self, module, opt):
+    def load_best(self, module, opt) -> bool:
         """Load the best model.
 
         Args:
             module (nn.Module): model to load
             opt (Optimizer): optimizer to load
+
+        Return:
+            bool: True if loaded successfully
         """
 
-        self.load(module, opt, self.best_epoch)
+        if self.best_epoch is not None:
+            self.load(module, opt, self.best_epoch)
+            return True
+
+        return False
