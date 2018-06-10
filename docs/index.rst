@@ -9,6 +9,7 @@ Tinder - extra utils for PyTorch
     saver
     monitor
     optimizer
+    visualize
 
 
 .. toctree ::

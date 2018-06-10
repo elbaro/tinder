@@ -1,5 +1,6 @@
 import torch
 
+from .visualize import *
 from .metrics import *
 from .nn import *
 from .layers import *
