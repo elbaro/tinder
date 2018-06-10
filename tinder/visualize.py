@@ -29,7 +29,7 @@ def show_imgs(imgs, rows, cols, is_indexed:[bool]=None):
 
     fig = plt.figure()
 
-    for i, (img, cmap) in enumerate(zip(imgs, is_indexed)):
+    for i, (img, is_indexed) in enumerate(zip(imgs, is_indexed)):
         if type(img) == torch.Tensor:
             img = img.detach().cpu().numpy()
 
