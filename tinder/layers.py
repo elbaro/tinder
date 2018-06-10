@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 class AssertSize(nn.Module):
-    """Assert the input has the specified size.
+    """Assert that the input has the specified size.
 
     Example::
 

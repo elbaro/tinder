@@ -2,7 +2,7 @@ import torch
 
 
 class WarmRestartLR(object):
-    r"""Provide T_cur for the current restart session.
+    """Provide T_cur for the current restart session.
 
     Example::
 

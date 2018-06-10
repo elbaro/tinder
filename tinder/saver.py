@@ -43,6 +43,19 @@ class Saver(object):
 
     # ex. ~/imagenet/weights/alexnet/epoch_0001.pth
     def save(self, module, opt, epoch, score=None):
+        """Save the model.
+
+        `score` is used to choose the best model.
+        An example for score is validation accuracy.
+
+        Args:
+            module (nn.Module): pytorch module
+            opt (Optimizer, optional): optimizer. Defaults to None.
+            epoch (int): number of epochs completed
+            score (float, optional): Defaults to None. [description]
+        """
+
+
         if score != None:
             if (self.best_score is None) or self.best_score < score:
                 self.best_epoch = epoch
@@ -61,6 +74,16 @@ class Saver(object):
         torch.save(dic, self.path_for_epoch(epoch))
 
     def load(self, module, opt, epoch):
+        """Load the model.
+
+        It is recommended to use `load_latest` or `load_best` instead.
+
+        Args:
+            module (nn.Module): model to load
+            opt (Optimizer): optimizer to load
+            epoch (int): epoch to load
+        """
+
         dic = torch.load(
             self.path_for_epoch(epoch),
             map_location=lambda storage, loc: storage)
@@ -72,9 +95,23 @@ class Saver(object):
             opt.load_state_dict(dic['opt'])
 
     def load_latest(self, module, opt):
+        """Load the latest model.
+
+        Args:
+            module (nn.Module): model to load
+            opt (Optimizer): optimizer to load
+        """
+
         latest:str = max(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         assert latest.startswith('epoch_') and latest.endswith('.pth')
         self.load(int(latest[6:10]), module, opt)
 
     def load_best(self, module, opt):
+        """Load the best model.
+
+        Args:
+            module (nn.Module): model to load
+            opt (Optimizer): optimizer to load
+        """
+
         self.load(self.best_epoch, module, opt)
