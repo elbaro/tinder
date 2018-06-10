@@ -4,21 +4,22 @@ def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=Tr
     """
     Setup convinient utils to run a python script for deep learning.
 
+    Sets the 'CUDA_DEVICE_ORDER' environment variable to 'PCI_BUS_ID'
+
     Examples:
-          `./a.py train 4,5,6 lr=0.01`
-          If a.py calls `tinder.setup()`, this is equivalent to `args=['train','4,5,6','lr=0.01]`.
+          `./a.py lr=0.01 gpu=0,1,2`
+
           The following environments are set:
 
-          - os.environ['mode'] = 'train'
-          - os.environ['CUDA_VISIBLE_DEVICES'] = '4,5,6'
+          - os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2'
           - os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
           - os.environ['lr'] = '0.01'
 
     Args:
+        logger_name: setup standard python logger that is compatiable with tqdm
+        parse_args: set environment variables from command line arguments. gpu is alias for CUDA_DEVICE_DEVICES.
         trace: use `backtrace` module to print stacktrace
-        pdb_on_error: enter `pdb` mode when an exception is raised
-        parse_args: parse `args` or `sys.args` of a form `script.py [mode] [gpus_comma_separated]`
-        logger: setup the logging format
+        pdb_on_error: enter `pdb` shell when an exception is raised
     """
     import os
 
