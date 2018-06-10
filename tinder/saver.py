@@ -108,7 +108,7 @@ class Saver(object):
         latest:str = max(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         assert latest.startswith('epoch_') and latest.endswith('.pth')
         epoch = int(latest[6:10])
-        self.load(epoch, module, opt)
+        self.load(module, opt, epoch)
         return epoch
 
 
@@ -120,4 +120,4 @@ class Saver(object):
             opt (Optimizer): optimizer to load
         """
 
-        self.load(self.best_epoch, module, opt)
+        self.load(module, opt, self.best_epoch)
