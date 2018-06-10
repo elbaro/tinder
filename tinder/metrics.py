@@ -28,8 +28,11 @@ def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch
     prediction = prediction.view(n, -1)
     label = label.detach().view(n, -1)
 
+    out = []
     for i in range(num_classes):
-        TP = ((prediction == i) & (label == i)).int().sum(dim=2)    # [N, C]
-        union = ((prediction == i) | (label == i)).int().sum(dim=2)  # [N, C]
+        TP = ((prediction == i) & (label == i)).int().sum(dim=1)    # [N]
+        union = ((prediction == i) | (label == i)).int().sum(dim=1)  # [N]
+        out.append(TP / union)
 
-    return TP / union
+    out = torch.stack(out, dim=1)
+    return out  # [N, C]
