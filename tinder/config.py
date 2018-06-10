@@ -1,4 +1,6 @@
-def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=True, args=None):
+import sys
+
+def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=True):
     """
     Setup convinient utils to run a python script for deep learning.
 
@@ -17,7 +19,6 @@ def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=Tr
         pdb_on_error: enter `pdb` mode when an exception is raised
         parse_args: parse `args` or `sys.args` of a form `script.py [mode] [gpus_comma_separated]`
         logger: setup the logging format
-        args (list): if given, this is used instead of `sys.args`
     """
     import os
 
@@ -39,26 +40,20 @@ def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=Tr
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 
     if parse_args:
-        import argparse
-        parser = argparse.ArgumentParser()
-        parser.add_argument('mode', help='cmd. e.g) train/val/test/preprocess', type=str)
-        parser.add_argument('gpu', help='gpu list; e.g) 0,1', type=str)
-        args, unknowns = parser.parse_known_args(args)
-
-        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-        os.environ['mode'] = args.mode
-        for unknown in unknowns:
-            if unknown[0] == '-':
-                unknown = unknown[1:]
-            if unknown[0] == '-':
-                unknown = unknown[1:]
-            idx = unknown.find('=')
+        for token in sys.argv[1:]:
+            if token[0] == '-':
+                token = token[1:]
+            if token[0] == '-':
+                token = token[1:]
+            idx = token.find('=')
             if idx == -1:
-                os.environ[unknown] = '1'
-                print('잘못된 입력: ', unknown)
-                sys.exit(-1)
+                continue
             else:
-                os.environ[unknown[:idx]] = unknown[idx + 1:]
+                os.environ[token[:idx]] = token[idx + 1:]
+
+        if 'gpu' in os.environ:
+            os.environ['CUDA_VISIBLE_DEVICES'] = os.environ['gpu']
+
 
     if logger_name is not None:
         import logging

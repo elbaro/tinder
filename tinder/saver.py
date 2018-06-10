@@ -6,7 +6,7 @@ class Saver(object):
 
     Example::
 
-        saver = Saver('/data/weights/', 'alexnet')
+        saver = Saver('/data/weights/', 'resnet152-cosine')
         saver.load_latest(alexnet, opt)  # resume from the latest
         for epoch in range(100):
             ..
@@ -20,15 +20,23 @@ class Saver(object):
 
     Args:
         weight_dir (str): directory for your weights
-        model_name (str): name of your model (e.g. resnet152-cosine)
+        exp_name (str): name of your experiment (e.g. resnet152-cosine)
     """
 
-    def __init__(self, weight_dir, model_name):
+    def __init__(self, weight_dir, exp_name):
         self.weight_dir = weight_dir
-        self.model_name = model_name
-        self.dir_path = weight_dir + '/' + model_name
+        self.exp_name = exp_name
+        self.dir_path = weight_dir + '/' + exp_name
         os.makedirs(self.dir_path, exist_ok=True)
-        self.best_score = None
+
+        self.best_epoch_path = self.dir_path + '/best_epoch'
+        if os.path.exists(self.best_epoch_path):
+            with open(self.best_epoch_path) as f:
+                self.best_epoch = int(f.readline())
+                self.best_score = float(f.readline())
+        else:
+            self.best_epoch = None
+            self.best_score = None
 
     def path_for_epoch(self, epoch):
         return self.dir_path + '/' + 'epoch_%04d.pth' % epoch
@@ -37,6 +45,7 @@ class Saver(object):
     def save(self, module, opt, epoch, score=None):
         if score != None:
             if (self.best_score is None) or self.best_score < score:
+                self.best_epoch = epoch
                 self.best_score = score
                 with open(self.dir_path + '/best_epoch') as f:
                     print(epoch, file=f)
@@ -68,8 +77,4 @@ class Saver(object):
         self.load(int(latest[6:10]), module, opt)
 
     def load_best(self, module, opt):
-        with open(self.dir_path + '/best_epoch') as f:
-            epoch = int(f.readline())
-            self.best_score = float(f.readline())
-
-        self.load(epoch, module, opt)
+        self.load(self.best_epoch, module, opt)

@@ -8,6 +8,7 @@ Tinder - extra utils for PyTorch
     config
     saver
     monitor
+    optimizer
 
 
 .. toctree ::
@@ -17,6 +18,7 @@ Tinder - extra utils for PyTorch
     layers
     dataset
     itertools
+    metrics
 
 
 .. toctree ::
