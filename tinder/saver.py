@@ -60,7 +60,7 @@ class Saver(object):
             if (self.best_score is None) or self.best_score < score:
                 self.best_epoch = epoch
                 self.best_score = score
-                with open(self.dir_path + '/best_epoch') as f:
+                with open(self.dir_path + '/best_epoch', 'w') as f:
                     print(epoch, file=f)
                     print(score, file=f)
 
