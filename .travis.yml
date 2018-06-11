@@ -10,7 +10,7 @@ install:
 # command to run tests
 script:
   - pytest tinder/
-  - cd docs && make html
+  - cd docs && make html && touch _build/html/.nojekyll
 
 deploy:
   provider: pages

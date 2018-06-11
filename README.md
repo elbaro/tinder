@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/elbaro/tinder.svg?branch=master)](https://travis-ci.org/elbaro/tinder)
 
-Just extra Pytorch library.
-Documentation is [here](http://tinder.readthedocs.org/).
+[![Docs Link](https://img.shields.io/badge/docs-master-orange.svg)](http://elbaro.github.io/tinder)
+
+Pytorch library.
 
 
 ## Usage
