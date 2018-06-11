@@ -4,7 +4,20 @@ python:
 # command to install dependencies
 install:
   - pip install -qr requirements.txt
+  - pip install -qr sphinx git://github.com/snide/sphinx_rtd_theme.git#egg=sphinx_rtd_theme
   - python setup.py install
+
 # command to run tests
 script:
   - pytest tinder/
+  - cd docs && make html
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $gh
+  keep_history: false
+  local_dir: docs/_build/html
+  verbose: true
+  on:
+    branch: master
