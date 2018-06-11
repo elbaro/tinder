@@ -10,8 +10,8 @@ def test_balanced():
     cnt = Counter()
     for i in range(100):
         for batch in loader:
-            cnt.update(batch)
+            cnt.update(batch.numpy())
 
     # ideally 1:300, 2:300, 3:300, 4:300, 5:300
     for val in cnt.values():
-        assert val > 200
+        assert val > 200, val

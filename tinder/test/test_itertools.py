@@ -2,6 +2,7 @@ import tinder
 
 
 def test_batch():
-    it = tinder.batch([1, 2, 3, 4], 3)
-    assert next(it) == [1, 2, 3]
-    assert next(it) == [4]
+    iterable = tinder.batch([1, 2, 3, 4], 3)
+    iterator = iter(iterable)
+    assert next(iterator) == [1, 2, 3]
+    assert next(iterator) == [4]
