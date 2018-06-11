@@ -49,9 +49,9 @@ class Saver(object):
         `score` is used to choose the best model.
         An example for score is validation accuracy.
 
-        Example:
+        Example::
 
-            saver = Saver(..)
+            saver = Saver()
             saver.save(
                 {
                     'net':net,
@@ -63,9 +63,9 @@ class Saver(object):
             )
 
         Args:
-            dic (dict): the values are objects with `state_dict` and `load_state_dict`.
+            dic (dict): the values are objects with `state_dict` and `load_state_dict`
             epoch (int): number of epochs completed
-            score (float, optional): Defaults to None. [description]
+            score (float, optional): Defaults to None
         """
 
         if score != None:
