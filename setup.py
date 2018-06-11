@@ -20,4 +20,9 @@ setup(name='tinder',
       license='MIT',
       packages=['tinder'],
       keywords=['tinder','pytorch','torch'],
-      zip_safe=False)
+      zip_safe=False,
+      install_requires=[
+          'matplotlib',
+          'redis',
+      ]
+      )
