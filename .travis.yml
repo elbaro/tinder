@@ -4,7 +4,7 @@ python:
 # command to install dependencies
 install:
   - pip install -qr requirements.txt
-  - pip install -q sphinx git://github.com/snide/sphinx_rtd_theme.git#egg=sphinx_rtd_theme
+  - pip install -q sphinx sphinx_rtd_theme
   - python setup.py install
 
 # command to run tests
