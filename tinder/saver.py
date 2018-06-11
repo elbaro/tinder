@@ -1,6 +1,7 @@
 import os
 import torch
 
+
 class Saver(object):
     """A helper class to save and load your model.
 
@@ -42,19 +43,30 @@ class Saver(object):
         return self.dir_path + '/' + 'epoch_%04d.pth' % epoch
 
     # ex. ~/imagenet/weights/alexnet/epoch_0001.pth
-    def save(self, module, opt, epoch, score=None):
+    def save(self, dic: dict, epoch: int, score: float=None):
         """Save the model.
 
         `score` is used to choose the best model.
         An example for score is validation accuracy.
 
+        Example:
+
+            saver = Saver(..)
+            saver.save(
+                {
+                    'net':net,
+                    'opt':opt,
+                    'scheduler':cosine_annealing
+                },
+                epoch=3,
+                score=val_acc
+            )
+
         Args:
-            module (nn.Module): pytorch module
-            opt (Optimizer, optional): optimizer. Defaults to None.
+            dic (dict): the values are objects with `state_dict` and `load_state_dict`.
             epoch (int): number of epochs completed
             score (float, optional): Defaults to None. [description]
         """
-
 
         if score != None:
             if (self.best_score is None) or self.best_score < score:
@@ -64,42 +76,36 @@ class Saver(object):
                     print(epoch, file=f)
                     print(score, file=f)
 
-        dic = {
-            'net': module.state_dict(),
-            'epoch': epoch,
-        }
-        if opt:
-            dic['opt'] = opt.state_dict()
+        for key, value in dic.items():
+            dic[key] = value.state_dict()
+        dic['epoch'] = epoch
 
         torch.save(dic, self.path_for_epoch(epoch))
 
-    def load(self, module, opt, epoch):
+    def load(self, dic: dict, epoch: int):
         """Load the model.
 
         It is recommended to use `load_latest` or `load_best` instead.
 
         Args:
-            module (nn.Module): model to load
-            opt (Optimizer): optimizer to load
+            dic (dict): see save()
             epoch (int): epoch to load
         """
 
-        dic = torch.load(
+        states = torch.load(
             self.path_for_epoch(epoch),
             map_location=lambda storage, loc: storage)
 
-        module.load_state_dict(dic['net'])
-        assert epoch == dic['epoch']
+        assert epoch == states['epoch']
 
-        if opt is not None:
-            opt.load_state_dict(dic['opt'])
+        for key, value in dic.items():
+            value.load_state_dict(dic[key])
 
-    def load_latest(self, module, opt) -> int:
+    def load_latest(self, dic: dict) -> int:
         """Load the latest model.
 
         Args:
-            module (nn.Module): model to load
-            opt (Optimizer): optimizer to load
+            dic (dict): see save()
 
         Return:
             int: the epoch of the loaded model. 0 if no model exists.
@@ -109,27 +115,25 @@ class Saver(object):
         if len(files) == 0:
             return 0
 
-        latest:str = max(files)
+        latest: str = max(files)
         assert latest.startswith('epoch_') and latest.endswith('.pth')
         epoch = int(latest[6:10])
-        self.load(module, opt, epoch)
+        self.load(dic, epoch)
 
         return epoch
 
-
-    def load_best(self, module, opt) -> bool:
+    def load_best(self, dic: dict) -> bool:
         """Load the best model.
 
         Args:
-            module (nn.Module): model to load
-            opt (Optimizer): optimizer to load
+            dic (dict): see save()
 
         Return:
             bool: True if loaded successfully
         """
 
         if self.best_epoch is not None:
-            self.load(module, opt, self.best_epoch)
+            self.load(dic, self.best_epoch)
             return True
 
         return False
