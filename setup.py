@@ -25,6 +25,7 @@ setup(name='tinder',
           'matplotlib',
           'backtrace',
           'numpy',
+          'tqdm',
           'redis',
       ]
       )
