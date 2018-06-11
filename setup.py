@@ -23,6 +23,8 @@ setup(name='tinder',
       zip_safe=False,
       install_requires=[
           'matplotlib',
+          'backtrace',
+          'numpy',
           'redis',
       ]
       )
