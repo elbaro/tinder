@@ -99,7 +99,7 @@ class Saver(object):
         assert epoch == states['epoch']
 
         for key, value in dic.items():
-            value.load_state_dict(dic[key])
+            value.load_state_dict(states[key])
 
     def load_latest(self, dic: dict) -> int:
         """Load the latest model.

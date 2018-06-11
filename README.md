@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/elbaro/tinder.svg?branch=master)](https://travis-ci.org/elbaro/tinder)
 
-[![Docs Link](https://img.shields.io/badge/docs-master-orange.svg)](http://elbaro.github.io/tinder)
+[![Docs Link](https://img.shields.io/badge/docs-master-orange.svg)](https://elbaro.github.io/tinder)
 
 Pytorch library.
 
@@ -32,7 +32,3 @@ Opencv has its own threadpool and states. When DataLoader creates multiple worke
 * pthread's fork only copies the main thread, and opencv thinks it has many threads while in fact it has only one thread.
   some people work around this by temporary solutions. see the above issue.
 * OpenCL/CUDA are doing something in background during fork.
-
-### LokyDataLoader (WIP)
-
-A DataLoader using a multiprocessing library Loky.
