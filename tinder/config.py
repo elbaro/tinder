@@ -1,6 +1,10 @@
 import sys
+import os
+from colorama import Fore, Style
+from enum import Enum, auto
 
-def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=True):
+
+def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
     """
     Setup convinient utils to run a python script for deep learning.
 
@@ -38,24 +42,6 @@ def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=Tr
 
         sys.excepthook = new_hook
 
-    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-
-    if parse_args:
-        for token in sys.argv[1:]:
-            if token[0] == '-':
-                token = token[1:]
-            if token[0] == '-':
-                token = token[1:]
-            idx = token.find('=')
-            if idx == -1:
-                continue
-            else:
-                os.environ[token[:idx]] = token[idx + 1:]
-
-        if 'gpu' in os.environ:
-            os.environ['CUDA_VISIBLE_DEVICES'] = os.environ['gpu']
-
-
     if logger_name is not None:
         import logging
         import tqdm
@@ -80,3 +66,93 @@ def setup(*, logger_name='tinder', parse_args=False, trace=True, pdb_on_error=Tr
         log.addHandler(handler)
 
         return log
+
+class Placeholder(Enum):
+    """A placeholder to denote the required parameter without default.
+
+    Example::
+
+        config = {
+            'lr': 0.01,
+            'gpu': Placeholder.STR
+        }
+        tinder.config.override(config)
+    """
+
+    INT = auto()
+    FLOAT = auto()
+    STR = auto()
+
+
+def override(config):
+    """Update your config dict with command line arguments.
+
+    The original dictionary is the default values.
+    To prevent mistakes, any command line argument not specified in the dictionary raises.
+
+    `gpu` is a special key. If `gpu` is found, `os.environ['CUDA_VISIBLE_DEVICES']` is set accordingly.
+
+    Example::
+
+        config = {
+            'lr': 0.01,
+            'gpu': Placeholder.STR
+        }
+        tinder.config.override(config)
+
+        // shell
+        python script.py lr=0.005 gpu=0,1,2
+
+
+    Args:
+        config ([type]): [description]
+
+    Raises:
+        RuntimeError: the command line provided an unknown arg.
+        RuntimeError: the required arg is not provided.
+    """
+
+    new = {}
+
+    for token in sys.argv[1:]:
+        idx = token.find('=')
+        if idx == -1:
+            continue
+        else:
+            key = token[:idx]
+            value = token[idx + 1:]
+
+            if key not in config:
+                raise RuntimeError("unknown arg: " + key)
+
+            default = config[key]
+            if type(default) == int or default == Placeholder.INT:
+                value = int(value)
+            elif type(default) == float:
+                value = float(value)
+            elif type(default) == str:
+                pass
+            elif type(default) == bool:
+                value = bool(value)
+
+            new[key] = value
+            config[key] = value
+
+    print(f'{Fore.YELLOW}=========={Style.RESET_ALL}')
+    if config:
+        width = max(len(key) for key in  config.keys())
+        for key, value in config.items():
+            if key in new:
+                print(f'{Fore.GREEN}{key:>{width}s}: {value}{Style.RESET_ALL}')
+            elif type(value)==Placeholder:
+                raise RuntimeError(f'Required: {key}')
+            else:
+                print(f'{key:>{width}s}: {value}')
+    else:
+        print('no config')
+    print(f'{Fore.YELLOW}=========={Style.RESET_ALL}')
+
+    # bonus
+    if 'gpu' in config:
+        os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+        os.environ['CUDA_VISIBLE_DEVICES'] = os.environ['gpu']

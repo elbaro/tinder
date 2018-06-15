@@ -4,3 +4,4 @@ backtrace
 numpy
 tqdm
 matplotlib
+colorama

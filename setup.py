@@ -22,6 +22,7 @@ setup(name='tinder',
       keywords=['tinder','pytorch','torch'],
       zip_safe=False,
       install_requires=[
+          'colorama',
           'matplotlib',
           'backtrace',
           'numpy',
