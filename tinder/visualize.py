@@ -15,12 +15,13 @@ def show_imgs(imgs, rows, cols, cmaps:[]=None):
     - torch.Tensor or numpy.ndarray
     - 0~1 or 0~255
     - HWC or CWH
+    - None (skip the grid cell for alignmentt)
 
     Args:
         imgs
         rows
         cols
-        cmaps ([]): a list of flags that represents whether images are indexed images.
+        cmaps ([objects]): a list of matplot colormaps or booleans. If True, use the default cmap. If False, colormap is not used. If colormap is provided, use it.
     """
 
     assert len(imgs) <= rows*cols
@@ -30,7 +31,8 @@ def show_imgs(imgs, rows, cols, cmaps:[]=None):
     fig = plt.figure()
 
     for i, (img, cmap) in enumerate(zip(imgs, cmaps)):
-        if img==None: continue
+        if img is None:
+            continue
 
         if type(img) == torch.Tensor:
             img = img.detach().cpu().numpy()
