@@ -65,6 +65,7 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
 
         return log
 
+
 class Placeholder(Enum):
     """A placeholder to denote the required parameter without default.
 
@@ -126,7 +127,7 @@ def override(config):
                 raise RuntimeError("unknown arg: " + key)
 
             default = config[key]
-            if isinstance(default,int) or default == Placeholder.INT:
+            if isinstance(default, int) or default == Placeholder.INT:
                 value = int(value)
             elif isinstance(default, float) or default == Placeholder.FLOAT:
                 value = float(value)
@@ -140,11 +141,11 @@ def override(config):
 
     print(f'{Fore.YELLOW}=========={Style.RESET_ALL}')
     if config:
-        width = max(len(key) for key in  config.keys())
+        width = max(len(key) for key in config.keys())
         for key, value in config.items():
             if key in new:
                 print(f'{Fore.GREEN}{key:>{width}s}: {value}{Style.RESET_ALL}')
-            elif type(value)==Placeholder:
+            elif type(value) == Placeholder:
                 raise RuntimeError(f'Required: {key}')
             else:
                 print(f'{key:>{width}s}: {value}')
