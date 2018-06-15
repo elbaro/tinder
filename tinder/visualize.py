@@ -21,7 +21,7 @@ def show_imgs(imgs, rows, cols, cmaps:[]=None):
         imgs
         rows
         cols
-        cmaps ([objects]): a list of matplot colormaps or booleans. If True, use the default cmap. If False, colormap is not used. If colormap is provided, use it.
+        cmaps ([objects]): a list of matplot ListedColormaps or booleans. If True, use the default cmap. If False, colormap is not used. If ListedColormap is provided, use it.
     """
 
     assert len(imgs) <= rows*cols
@@ -47,7 +47,7 @@ def show_imgs(imgs, rows, cols, cmaps:[]=None):
         elif cmap is False:
             plt.imshow(img)
         else:
-            plt.imshow(img, cmap=cmap)
+            plt.imshow(img, cmap=cmap, vmin=0, vmax=len(cmap.colors))
 
     plt.show()
 
