@@ -2,6 +2,7 @@ import sys
 import os
 from colorama import Fore, Style
 from enum import Enum, auto
+from types import SimpleNamespace
 
 
 def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
@@ -106,12 +107,15 @@ def override(config):
 
 
     Args:
-        config ([type]): [description]
+        config (dict or SimpleNamspace): parameter specs
 
     Raises:
         RuntimeError: the command line provided an unknown arg.
         RuntimeError: the required arg is not provided.
     """
+
+    if isinstance(config, SimpleNamespace):
+        config = config.__dict__
 
     new = {}
 
