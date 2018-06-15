@@ -4,9 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pylab
 
-cmap = plt.get_cmap('Accent', 256)
+default_cmap = plt.get_cmap('Accent', 256)
 
-def show_imgs(imgs, rows, cols, is_indexed:[bool]=None):
+def show_imgs(imgs, rows, cols, cmaps:[]=None):
     """
     Show an image grid in a popup window.
 
@@ -20,16 +20,18 @@ def show_imgs(imgs, rows, cols, is_indexed:[bool]=None):
         imgs
         rows
         cols
-        is_indexed ([bool]): a list of flags that represents whether images are indexed images.
+        cmaps ([]): a list of flags that represents whether images are indexed images.
     """
 
     assert len(imgs) <= rows*cols
-    if is_indexed is None: is_indexed = [False] * len(imgs)
-    assert len(imgs) == len(is_indexed)
+    if cmaps is None: cmaps = [False] * len(imgs)
+    assert len(imgs) == len(cmaps)
 
     fig = plt.figure()
 
-    for i, (img, is_indexed) in enumerate(zip(imgs, is_indexed)):
+    for i, (img, cmap) in enumerate(zip(imgs, cmaps)):
+        if img==None: continue
+
         if type(img) == torch.Tensor:
             img = img.detach().cpu().numpy()
 
@@ -38,10 +40,12 @@ def show_imgs(imgs, rows, cols, is_indexed:[bool]=None):
 
         fig.add_subplot(rows,cols,i+1)
 
-        if is_indexed:
-            plt.imshow(img, cmap=cmap)
-        else:
+        if cmap is True:
+            plt.imshow(img, cmap=default_cmap)
+        elif cmap is False:
             plt.imshow(img)
+        else:
+            plt.imshow(img, cmap=cmap)
 
     plt.show()
 
