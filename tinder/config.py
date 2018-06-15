@@ -25,18 +25,16 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
         trace: use `backtrace` module to print stacktrace
         pdb_on_error: enter `pdb` shell when an exception is raised
     """
-    import os
 
     if trace:
         import backtrace
         backtrace.hook(align=True)
     if pdb_on_error:
-        import sys
         old_hook = sys.excepthook
 
-        def new_hook(type, value, tb):
-            old_hook(type, value, tb)
-            if type != KeyboardInterrupt:
+        def new_hook(type_, value, tb):
+            old_hook(type_, value, tb)
+            if type_ != KeyboardInterrupt:
                 import pdb
                 pdb.post_mortem(tb)
 
@@ -58,7 +56,7 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
                     self.flush()
                 except (KeyboardInterrupt, SystemExit):
                     raise
-                except Exception:
+                except Exception:  # pylint: disable=W0703
                     self.handleError(record)
 
         handler = TqdmLoggingHandler()
@@ -82,6 +80,7 @@ class Placeholder(Enum):
     INT = auto()
     FLOAT = auto()
     STR = auto()
+    BOOL = auto()
 
 
 def override(config):
@@ -90,7 +89,8 @@ def override(config):
     The original dictionary is the default values.
     To prevent mistakes, any command line argument not specified in the dictionary raises.
 
-    `gpu` is a special key. If `gpu` is found, `os.environ['CUDA_VISIBLE_DEVICES']` is set accordingly.
+    `gpu` is a special key. If `gpu` is found,
+    `os.environ['CUDA_VISIBLE_DEVICES']` is set accordingly.
 
     Example::
 
@@ -126,13 +126,13 @@ def override(config):
                 raise RuntimeError("unknown arg: " + key)
 
             default = config[key]
-            if type(default) == int or default == Placeholder.INT:
+            if isinstance(default,int) or default == Placeholder.INT:
                 value = int(value)
-            elif type(default) == float:
+            elif isinstance(default, float) or default == Placeholder.FLOAT:
                 value = float(value)
-            elif type(default) == str:
+            elif isinstance(default, str) or default == Placeholder.STR:
                 pass
-            elif type(default) == bool:
+            elif isinstance(default, bool) or default == Placeholder.BOOL:
                 value = bool(value)
 
             new[key] = value
