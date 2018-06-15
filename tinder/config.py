@@ -160,4 +160,4 @@ def override(config):
     # bonus
     if 'gpu' in config:
         os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-        os.environ['CUDA_VISIBLE_DEVICES'] = os.environ['gpu']
+        os.environ['CUDA_VISIBLE_DEVICES'] = config['gpu']
