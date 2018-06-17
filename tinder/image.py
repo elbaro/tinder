@@ -56,7 +56,7 @@ class BoundingBox(NamedTuple):
 
 def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingBox'] = None):
     crop = BoundingBox.from_another(crop).int()
-    img = img[crop.top:crop.bottom, crop.left:crop.right, :]
+    img = img[crop.top:crop.bottom, crop.left:crop.right]
 
     if boxes_to_transform:
         return img, \
