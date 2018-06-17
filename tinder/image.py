@@ -45,17 +45,15 @@ class BoundingBox(NamedTuple):
         return BoundingBox.from_points(left, top, right, bottom, self.max_width, self.max_height)
 
     def int(self):
-        self.left = int(self.left)
-        self.top = int(self.top)
-        self.right = int(self.right)
-        self.bottom = int(self.bottom)
-        self.width = self.right - self.left
-        self.height = self.bottom - self.top
-        return self
+        left = int(self.left)
+        top = int(self.top)
+        right = int(self.right)
+        bottom = int(self.bottom)
+        return BoundingBox.from_points(left, top, right, bottom, self.max_width, self.max_height)
 
 
 def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingBox'] = None):
-    crop = BoundingBox.from_another(crop).int()
+    crop = crop.int()
     img = img[crop.top:crop.bottom, crop.left:crop.right]
 
     if boxes_to_transform:
@@ -65,8 +63,8 @@ def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingB
                    box.top - crop.top,
                    box.width,
                    box.height,
-                   crop.width,
-                   crop.height)
+                   crop.width,  # already int
+                   crop.height)  # already int
                    for box in boxes_to_transform]
 
     return img
