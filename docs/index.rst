@@ -16,6 +16,7 @@ Tinder - extra utils for PyTorch
     :maxdepth: 1
     :caption: Extended classes
 
+    image
     layers
     dataset
     itertools

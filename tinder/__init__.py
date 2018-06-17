@@ -1,3 +1,10 @@
+"""
+Tinder
+
+A library complement to PyTorch.
+"""
+
+from .image import BoundingBox, crop
 from .config import bootstrap, Placeholder, override
 from .optimizer import WarmRestartLR, copy_opt_state
 from .saver import Saver

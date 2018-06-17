@@ -1,4 +1,5 @@
 import redis
+import pika
 import time
 
 
@@ -104,3 +105,36 @@ class RedisQueue(object):
             batch.append(element)
 
         return batch
+
+# class RabbitBatchConsumer(object):
+#     """
+#         A RabbitMQ consumer that provides data in batch.
+
+#         Args:
+#             channel (pika.BlockingChannel): the channel instance with ack enabled.
+#             queue (str): the name of a queue.
+#     """
+
+#     def __init__(self, channel: pika.BlockingChannel, queue: str):
+#         self.channel = channel
+#         self.queue = queue
+
+
+#     def get_exact(self, batch_size) -> list:
+#         """
+#         Consume `batch_size` messages.
+#         Wait if not enough messages are available.
+
+#         Args:
+#             batch_size: the number of messages to consume.
+
+#         Returns: a list of `batch_size` messages.
+#         """
+
+#         batch = []
+#         for method_frame, properties, body in self.channel.consume('test'):
+#             self.channel.basic_ack(method_frame.delivery_tag)
+#             if len(batch) == batch_size:
+#                 break
+
+#         return batch
