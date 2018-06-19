@@ -8,6 +8,12 @@ class RedisQueue(object):
         A FIFO queue based on Redis. Can be used by multiple workers.
         Workers can share the queue by specifying the same queue name.
 
+        Example::
+
+            import redis
+            import tinder
+            q = tinder.serving.RedisQueue('q1')
+
         Args:
             queue (str): the name of a queue.
             unique_history (bool): Any element that is ever pushed into the queue is not pushed again.
@@ -106,35 +112,153 @@ class RedisQueue(object):
 
         return batch
 
-# class RabbitBatchConsumer(object):
-#     """
-#         A RabbitMQ consumer that provides data in batch.
 
-#         Args:
-#             channel (pika.BlockingChannel): the channel instance with ack enabled.
-#             queue (str): the name of a queue.
-#     """
+class RabbitBatchConsumer(object):
+    """
+        A RabbitMQ consumer that provides data in batch.
 
-#     def __init__(self, channel: pika.BlockingChannel, queue: str):
-#         self.channel = channel
-#         self.queue = queue
+        Args:
+            channel (pika.BlockingChannel): the channel instance with ack enabled.
+            queue (str): the name of a queue.
+    """
+
+    def __init__(self, queue: str, host: str = None, port: int = None, channel: pika.BlockingChannel = None):
+        if channel is None:
+            self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
+            self.channel = self.conn.channel()
+        else:
+            self.conn = None
+            self.channel = channel
+
+        self.channel.queue_declare(queue=queue)
+        self.queue = queue
+        self.buf = queue.Queue()
+
+        # start receiving messages
+        self.channel.basic_consume(self.handle_delivery, queue=queue)
+        self.channel.start_consuming()
 
 
-#     def get_exact(self, batch_size) -> list:
-#         """
-#         Consume `batch_size` messages.
-#         Wait if not enough messages are available.
+    def handle_receive(self, _channel, method, header, body):
+        self.buf.put((body, method.delivery_tag))
 
-#         Args:
-#             batch_size: the number of messages to consume.
 
-#         Returns: a list of `batch_size` messages.
-#         """
+    def get(self, timeout=None):
+        """
+        Consume one message. (blocking)
+        After processing the message, you should call consumer.ack(ack_tag).
 
-#         batch = []
-#         for method_frame, properties, body in self.channel.consume('test'):
-#             self.channel.basic_ack(method_frame.delivery_tag)
-#             if len(batch) == batch_size:
-#                 break
+        Returns:
+            A tuple (msg, ack_tag).
 
-#         return batch
+        Raise:
+            raise on timeout.
+        """
+        return self.buf.get(block=True, timeout=timeout)
+
+        
+    def get_batch(self, batch_size) -> (List,List):
+        """
+        Consume `batch_size` messages. (blocking)
+        After processing the message, you should call consumer.ack(ack_tag).
+
+        Args:
+            batch_size: the number of messages to consume.
+
+        Returns: (List,List).
+        The first is a list of messages.
+        The second is a list of ack tags.
+        """
+
+        l = [self.buf.get(block=True) for i in range(batch_size)]
+        return zip(*l)  # transpose
+
+
+    def ack(self, ack_tags:List):
+        """
+        Report that you successfully processed messages.
+
+        Args:
+            ack_tags: a list of ack tags of successful messages.
+        """
+
+        for tag in ack_tags:
+            self.channel.basic_ack(tag)
+
+
+    def ack_upto(self, ack_tag):
+        """
+        Report that you successfully processed all messages up to `ack_tag`.
+
+        Args:
+            ack_tag: the ack tag of the last successful message.
+        """
+
+        self.channel.basic_ack(ack_tag, multiple=True)
+
+
+    def nack(self, ack_tags:List, requeue):
+        """
+        Report that you fail to process messages.
+
+        Args:
+            ack_tags: a list of ack tags of successful messages.
+        """
+
+        for tag in ack_tags:
+            self.channel.basic_nack(tag, requeue=requeue)
+
+
+    def nack_upto(self, ack_tag, requeue):
+        """
+        Report that you fail to process all messages up to `ack_tag`.
+
+        Args:
+            ack_tag: the ack tag of the last successful message.
+        """
+
+        self.channel.basic_nack(ack_tag, multiple=True, requeue=requeue)
+
+
+class RabbitProducer(object):
+    """
+        A RabbitMQ consumer that provides data in batch.
+
+        Args:
+            channel (pika.BlockingChannel): the channel instance with ack enabled.
+            queue (str): the name of a queue.
+    """
+
+    def __init__(self, queue: str, channel: pika.BlockingChannel):
+        self.channel = channel
+        self.queue = queue
+
+        self.channel.queue_declare(queue=queue)
+
+        # make sure deliveries
+        channel.confirm_delivery()
+
+
+    def send(self, msg:str) -> bool:
+        """
+        send the message. (sync)
+
+
+        Args:
+            msg: a single msg(str)
+
+        Return:
+            bool: True on success
+        """
+
+        return self.channel.basic_publish('',
+            self.queue,
+            msg,
+            properties=pika.BasicProperties(content_type='text/plain',
+                                            delivery_mode=2),  # persistent
+            mandatory=True)
+
+
+    def close():
+        if self.conn is not None:
+            self.conn.close()
