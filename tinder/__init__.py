@@ -14,5 +14,5 @@ from .nn import WeightScale, PixelwiseNormalize, MinibatchStddev, loss_wgan_gp
 from .layers import AssertSize, Flatten, View
 from .dataset import hash_group, DataLoaderIterator, BalancedDataLoader
 from .monitor import Stat, Stats
-from .serving import RedisQueue
+from .serving import RedisQueue, RabbitConsumer, RabbitProducer
 from .itertools import batch

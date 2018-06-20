@@ -1,6 +1,11 @@
 import redis
 import pika
 import time
+import atexit
+from typing import List
+from multiprocessing import Queue, Process
+
+from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 
 
 class RedisQueue(object):
@@ -67,7 +72,8 @@ class RedisQueue(object):
         """
         if self.soft_capacity is not None:
             while self.available() > self.soft_capacity:
-                if self.cooldown < 2: self.cooldown *= 2
+                if self.cooldown < 2:
+                    self.cooldown *= 2
                 time.sleep(self.cooldown)
             if self.cooldown > 0.1:
                 self.cooldown /= 2
@@ -113,18 +119,21 @@ class RedisQueue(object):
         return batch
 
 
-class RabbitBatchConsumer(object):
+class RabbitConsumer(object):
     """
         A RabbitMQ consumer that provides data in batch.
 
+        If channel is given, host and port are ignored.
+        If channel is not given, host and port are used to create a new channel.
+
         Args:
-            channel (pika.BlockingChannel): the channel instance with ack enabled.
+            channel (BlockingChannel): the channel instance with ack enabled.
             queue (str): the name of a queue.
     """
 
-    def __init__(self, queue: str, host: str = None, port: int = None, channel: pika.BlockingChannel = None):
+    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672, channel: BlockingChannel = None):
         if channel is None:
-            self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
+            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
             self.channel = self.conn.channel()
         else:
             self.conn = None
@@ -132,16 +141,30 @@ class RabbitBatchConsumer(object):
 
         self.channel.queue_declare(queue=queue)
         self.queue = queue
-        self.buf = queue.Queue()
+        self.buf = Queue()
 
         # start receiving messages
-        self.channel.basic_consume(self.handle_delivery, queue=queue)
-        self.channel.start_consuming()
+        self.channel.basic_consume(self._handle_receive, queue=queue)
+        self.process = Process(target=self.channel.start_consuming)
+        self.process.start()
 
+        atexit.register(self.close)
 
-    def handle_receive(self, _channel, method, header, body):
+    def close(self):
+        """
+        Close the connection.
+
+        If a msg is not acked until the disconnect, it is considered not delivered.
+
+        """
+        if self.process is not None:
+            self.process.terminate()
+            self.process.join()
+            self.process = None
+            self.conn.close()
+
+    def _handle_receive(self, _channel, method, _header, body):
         self.buf.put((body, method.delivery_tag))
-
 
     def get(self, timeout=None):
         """
@@ -156,8 +179,7 @@ class RabbitBatchConsumer(object):
         """
         return self.buf.get(block=True, timeout=timeout)
 
-        
-    def get_batch(self, batch_size) -> (List,List):
+    def get_batch(self, batch_size) -> (List, List):
         """
         Consume `batch_size` messages. (blocking)
         After processing the message, you should call consumer.ack(ack_tag).
@@ -173,18 +195,18 @@ class RabbitBatchConsumer(object):
         l = [self.buf.get(block=True) for i in range(batch_size)]
         return zip(*l)  # transpose
 
-
-    def ack(self, ack_tags:List):
+    def ack(self, ack_tags: List):
         """
         Report that you successfully processed messages.
 
         Args:
-            ack_tags: a list of ack tags of successful messages.
+            ack_tags: a single ack tag or a list of ack tags of successful messages.
         """
-
-        for tag in ack_tags:
-            self.channel.basic_ack(tag)
-
+        if isinstance(ack_tags, list):
+            for tag in ack_tags:
+                self.channel.basic_ack(tag)
+        else:
+            self.channel.basic_ack(ack_tags)
 
     def ack_upto(self, ack_tag):
         """
@@ -196,8 +218,7 @@ class RabbitBatchConsumer(object):
 
         self.channel.basic_ack(ack_tag, multiple=True)
 
-
-    def nack(self, ack_tags:List, requeue):
+    def nack(self, ack_tags: List, requeue):
         """
         Report that you fail to process messages.
 
@@ -205,9 +226,11 @@ class RabbitBatchConsumer(object):
             ack_tags: a list of ack tags of successful messages.
         """
 
-        for tag in ack_tags:
-            self.channel.basic_nack(tag, requeue=requeue)
-
+        if isinstance(ack_tags, list):
+            for tag in ack_tags:
+                self.channel.basic_nack(tag)
+        else:
+            self.channel.basic_nack(ack_tags)
 
     def nack_upto(self, ack_tag, requeue):
         """
@@ -224,22 +247,30 @@ class RabbitProducer(object):
     """
         A RabbitMQ consumer that provides data in batch.
 
+        If channel is given, host and port are ignored.
+        If channel is not given, host and port are used to create a new channel.
+
         Args:
-            channel (pika.BlockingChannel): the channel instance with ack enabled.
+            channel (BlockingChannel): the channel instance with ack enabled.
             queue (str): the name of a queue.
     """
 
-    def __init__(self, queue: str, channel: pika.BlockingChannel):
-        self.channel = channel
-        self.queue = queue
+    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672,
+                 channel: BlockingChannel = None):
+        if channel is None:
+            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
+            self.channel = self.conn.channel()
+        else:
+            self.conn = None
+            self.channel = channel
 
+        self.queue = queue
         self.channel.queue_declare(queue=queue)
 
         # make sure deliveries
-        channel.confirm_delivery()
+        self.channel.confirm_delivery()
 
-
-    def send(self, msg:str) -> bool:
+    def send(self, msg: str) -> bool:
         """
         send the message. (sync)
 
@@ -251,14 +282,18 @@ class RabbitProducer(object):
             bool: True on success
         """
 
-        return self.channel.basic_publish('',
+        return self.channel.basic_publish(
+            '',
             self.queue,
             msg,
             properties=pika.BasicProperties(content_type='text/plain',
                                             delivery_mode=2),  # persistent
             mandatory=True)
 
-
-    def close():
+    def close(self):
+        """
+        Close the connection.
+        After the call to this method, you cannot `send`.
+        """
         if self.conn is not None:
             self.conn.close()
