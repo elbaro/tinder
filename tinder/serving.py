@@ -2,8 +2,9 @@ import redis
 import pika
 import time
 import atexit
-from typing import List
+from typing import List, Iterator, Tuple
 from multiprocessing import Queue, Process
+import queue
 
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 
@@ -164,9 +165,10 @@ class RabbitConsumer(object):
             self.conn.close()
 
     def _handle_receive(self, _channel, method, _header, body):
+        body = body.decode()
         self.buf.put((body, method.delivery_tag))
 
-    def get(self, timeout=None):
+    def one(self, timeout=None):
         """
         Consume one message. (blocking)
         After processing the message, you should call consumer.ack(ack_tag).
@@ -179,21 +181,37 @@ class RabbitConsumer(object):
         """
         return self.buf.get(block=True, timeout=timeout)
 
-    def get_batch(self, batch_size) -> (List, List):
+    def one_batch(self, max_batch_size:int) -> Tuple[List, List]:
         """
-        Consume `batch_size` messages. (blocking)
-        After processing the message, you should call consumer.ack(ack_tag).
+        Consume up to `max_batch_size` messages.
+        Wait until at least one msg is available.
+        After processing the message, you should call consumer.ack.
 
         Args:
-            batch_size: the number of messages to consume.
+            max_batch_size: the number of messages to consume.
 
         Returns: (List,List).
         The first is a list of messages.
         The second is a list of ack tags.
         """
 
-        l = [self.buf.get(block=True) for i in range(batch_size)]
-        return zip(*l)  # transpose
+        l = [self.buf.get(block=True)]
+        for i in range(max_batch_size-1):
+            try:
+                l.append(self.buf.get(block=False))
+            except queue.Empty:
+                break
+
+        msgs = [x[0] for x in l]
+        acks = [x[1] for x in l]
+        return (msgs, acks)
+
+
+    def iter_batch(self, max_batch_size:int) -> Iterator[Tuple[List,List]]:
+        while True:
+            yield self.one_batch(max_batch_size)
+
+
 
     def ack(self, ack_tags: List):
         """
@@ -258,7 +276,7 @@ class RabbitProducer(object):
     def __init__(self, queue: str, host: str = 'localhost', port: int = 5672,
                  channel: BlockingChannel = None):
         if channel is None:
-            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
+            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port, heartbeat_interval=10))
             self.channel = self.conn.channel()
         else:
             self.conn = None
