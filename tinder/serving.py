@@ -3,10 +3,13 @@ import pika
 import time
 import atexit
 from typing import List, Iterator, Tuple
-from multiprocessing import Queue, Process
+import asyncio
+from threading import Thread
+from multiprocessing import Queue
 import queue
 
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
+from pika.adapters import AsyncioConnection
 
 
 class RedisQueue(object):
@@ -132,24 +135,37 @@ class RabbitConsumer(object):
             queue (str): the name of a queue.
     """
 
-    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672, channel: BlockingChannel = None):
-        if channel is None:
-            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
-            self.channel = self.conn.channel()
-        else:
-            self.conn = None
-            self.channel = channel
-
-        self.channel.queue_declare(queue=queue)
+    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672):
         self.queue = queue
         self.buf = Queue()
 
-        # start receiving messages
-        self.channel.basic_consume(self._handle_receive, queue=queue)
-        self.process = Process(target=self.channel.start_consuming)
-        self.process.start()
+        self.conn = AsyncioConnection(pika.ConnectionParameters(host=host, port=port, ), self.on_connect, custom_ioloop=asyncio.get_event_loop())
+
+        self.thread = Thread(target=self.start_loop, args=())
+        self.thread.start()
 
         atexit.register(self.close)
+
+    # run on loop
+    def on_connect(self, unused_connection):
+        # TODO: register on connection close callback
+        print('conn ok')
+        self.conn.channel(on_open_callback=self.on_channel)
+
+    # run on loop
+    def on_channel(self, channel):
+        print('channel ok')
+        self.channel = channel
+        self.channel.queue_declare(queue=self.queue, callback=self.on_queue_declare)
+
+    def on_queue_declare(self, *args, **kwargs):
+        print('queue declare ok')
+        self.channel.basic_consume(self._handle_receive, self.queue)
+
+    def start_loop(self):
+        print('consumer loop starts')
+        self.conn.ioloop.start()  # this triggers connect -> on_connect
+
 
     def close(self):
         """
@@ -158,11 +174,8 @@ class RabbitConsumer(object):
         If a msg is not acked until the disconnect, it is considered not delivered.
 
         """
-        if self.process is not None:
-            self.process.terminate()
-            self.process.join()
-            self.process = None
-            self.conn.close()
+        # schedule close
+        self.channel.close()
 
     def _handle_receive(self, _channel, method, _header, body):
         body = body.decode()
@@ -220,11 +233,18 @@ class RabbitConsumer(object):
         Args:
             ack_tags: a single ack tag or a list of ack tags of successful messages.
         """
+        #self.conn.loop.call_soon_threadsafe(self._ack, args=(ack_tags,))
+        self.conn.loop.call_soon_threadsafe(lambda : self._ack(ack_tags))
+
+
+
+    def _ack(self, ack_tags):
         if isinstance(ack_tags, list):
             for tag in ack_tags:
                 self.channel.basic_ack(tag)
         else:
             self.channel.basic_ack(ack_tags)
+
 
     def ack_upto(self, ack_tag):
         """
@@ -233,8 +253,12 @@ class RabbitConsumer(object):
         Args:
             ack_tag: the ack tag of the last successful message.
         """
+        self.conn.ioloop.call_soon_threadsafe(self._ack_upto, args=(ack_tag,))
 
+
+    def _ack_upto(self, ack_tag):
         self.channel.basic_ack(ack_tag, multiple=True)
+
 
     def nack(self, ack_tags: List, requeue):
         """
@@ -249,6 +273,7 @@ class RabbitConsumer(object):
                 self.channel.basic_nack(tag)
         else:
             self.channel.basic_nack(ack_tags)
+
 
     def nack_upto(self, ack_tag, requeue):
         """
@@ -276,7 +301,7 @@ class RabbitProducer(object):
     def __init__(self, queue: str, host: str = 'localhost', port: int = 5672,
                  channel: BlockingChannel = None):
         if channel is None:
-            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port, heartbeat_interval=10))
+            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
             self.channel = self.conn.channel()
         else:
             self.conn = None
