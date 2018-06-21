@@ -28,5 +28,8 @@ setup(name='tinder',
           'numpy',
           'tqdm',
           'redis',
-      ]
+      ],
+      dependency_links = [
+          "git+https://github.com/nir0s/backtrace.git#egg=backtrace"
+        ]
       )
