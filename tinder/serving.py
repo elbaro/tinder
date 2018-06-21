@@ -340,3 +340,49 @@ class RabbitProducer(object):
         """
         if self.conn is not None:
             self.conn.close()
+
+
+from confluent_kafka import Producer, Consumer
+
+
+class KafkaProducer(object):
+    def __init__(self, topic: str, host: str = 'localhost'):
+        self.topic = topic
+        self.producer = Producer({
+            'bootstrap.servers': host,
+            'queue.buffering.max.messages': 10000000,  # 1e7
+        })
+
+    def send(self, msg: str):
+        self.producer.poll(0)
+        self.producer.produce(self.topic, msg.encode(), callback=None)
+
+    def flush(self):
+        self.producer.flush()
+
+
+class KafkaConsumer(object):
+    def __init__(self, topic: str, consumer_id: str, host: str = 'localhost'):
+        self.topic = topic
+        self.consumer = Consumer({
+            'bootstrap.servers': host,
+            'group.id': consumer_id,
+            'default.topic.config': {
+                'auto.offset.reset': 'smallest'
+            }
+        })
+        self.consumer.subscribe([self.topic])
+
+    def get(self, max_batch_size: int) -> List[str]:
+        while True:
+            batch = self.consumer.consume(num_messages=max_batch_size, timeout=1)
+            if batch:
+                ret = [msg.value() for msg in batch if (msg.error() is None)]
+                if ret:
+                    break
+
+        return ret
+
+    def iter(self, batch_size: int):
+        while True:
+            yield self.get(batch_size)
