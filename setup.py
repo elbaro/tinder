@@ -28,6 +28,8 @@ setup(name='tinder',
           'numpy',
           'tqdm',
           'redis',
+          'pika',
+          'confluent_kafka',
       ],
       dependency_links = [
           "git+https://github.com/nir0s/backtrace.git#egg=backtrace"
