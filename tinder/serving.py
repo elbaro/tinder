@@ -127,45 +127,52 @@ class RabbitConsumer(object):
     """
         A RabbitMQ consumer that provides data in batch.
 
-        If channel is given, host and port are ignored.
-        If channel is not given, host and port are used to create a new channel.
+        If the prefetch is 3*B, and you are processing messsages in batch of the size B,
+        the server sends you up to 2*B messages in advance.
+
 
         Args:
-            channel (BlockingChannel): the channel instance with ack enabled.
             queue (str): the name of a queue.
+            prefetch (int): the number of msgs to prefetch. reommend: batch_size*3
+            host (str): the hostname to connect without port.
+            port (int): the port to connect
+
     """
 
-    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672):
+    def __init__(self, queue: str, prefetch: int, host: str = 'localhost', port: int = 5672):
+        self.host = host
+        self.port = port
         self.queue = queue
+        self.prefetch = prefetch
         self.buf = Queue()
 
-        self.conn = AsyncioConnection(pika.ConnectionParameters(host=host, port=port, ), self.on_connect, custom_ioloop=asyncio.get_event_loop())
-
-        self.thread = Thread(target=self.start_loop, args=())
+        self.thread = Thread(target=self.start_loop, args=(), daemon=True)
         self.thread.start()
 
         atexit.register(self.close)
 
-    # run on loop
+    # run on ioloop
     def on_connect(self, unused_connection):
         # TODO: register on connection close callback
-        print('conn ok')
         self.conn.channel(on_open_callback=self.on_channel)
 
-    # run on loop
+    # run on ioloop
     def on_channel(self, channel):
-        print('channel ok')
         self.channel = channel
         self.channel.queue_declare(queue=self.queue, callback=self.on_queue_declare)
 
+    # run on ioloop
     def on_queue_declare(self, *args, **kwargs):
-        print('queue declare ok')
+        self.channel.basic_qos(prefetch_count=self.prefetch)
         self.channel.basic_consume(self._handle_receive, self.queue)
 
+    # run on new thread
     def start_loop(self):
-        print('consumer loop starts')
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self.conn = AsyncioConnection(pika.ConnectionParameters(host=self.host, port=self.port, ),
+                                      self.on_connect, custom_ioloop=loop)
         self.conn.ioloop.start()  # this triggers connect -> on_connect
-
 
     def close(self):
         """
@@ -175,7 +182,9 @@ class RabbitConsumer(object):
 
         """
         # schedule close
+
         self.channel.close()
+        self.thread.join()
 
     def _handle_receive(self, _channel, method, _header, body):
         body = body.decode()
@@ -194,7 +203,7 @@ class RabbitConsumer(object):
         """
         return self.buf.get(block=True, timeout=timeout)
 
-    def one_batch(self, max_batch_size:int) -> Tuple[List, List]:
+    def one_batch(self, max_batch_size: int) -> Tuple[List, List]:
         """
         Consume up to `max_batch_size` messages.
         Wait until at least one msg is available.
@@ -219,12 +228,9 @@ class RabbitConsumer(object):
         acks = [x[1] for x in l]
         return (msgs, acks)
 
-
-    def iter_batch(self, max_batch_size:int) -> Iterator[Tuple[List,List]]:
+    def iter_batch(self, max_batch_size: int) -> Iterator[Tuple[List, List]]:
         while True:
             yield self.one_batch(max_batch_size)
-
-
 
     def ack(self, ack_tags: List):
         """
@@ -234,9 +240,7 @@ class RabbitConsumer(object):
             ack_tags: a single ack tag or a list of ack tags of successful messages.
         """
         #self.conn.loop.call_soon_threadsafe(self._ack, args=(ack_tags,))
-        self.conn.loop.call_soon_threadsafe(lambda : self._ack(ack_tags))
-
-
+        self.conn.loop.call_soon_threadsafe(lambda: self._ack(ack_tags))
 
     def _ack(self, ack_tags):
         if isinstance(ack_tags, list):
@@ -244,7 +248,6 @@ class RabbitConsumer(object):
                 self.channel.basic_ack(tag)
         else:
             self.channel.basic_ack(ack_tags)
-
 
     def ack_upto(self, ack_tag):
         """
@@ -255,10 +258,8 @@ class RabbitConsumer(object):
         """
         self.conn.ioloop.call_soon_threadsafe(self._ack_upto, args=(ack_tag,))
 
-
     def _ack_upto(self, ack_tag):
         self.channel.basic_ack(ack_tag, multiple=True)
-
 
     def nack(self, ack_tags: List, requeue):
         """
@@ -273,7 +274,6 @@ class RabbitConsumer(object):
                 self.channel.basic_nack(tag)
         else:
             self.channel.basic_nack(ack_tags)
-
 
     def nack_upto(self, ack_tag, requeue):
         """
