@@ -1,5 +1,9 @@
 import torch.utils.data
 from collections import Counter, Iterable
+import torch.multiprocessing as tmp
+import multiprocessing as mp
+from typing import Callable
+import queue
 
 
 def hash_group(s: str, mod: int):
@@ -11,6 +15,53 @@ def hash_group(s: str, mod: int):
     for c in s:
         v = (v*7717 + ord(c)) % mod
     return v
+
+
+class StreamingDataloader(object):
+    def __init__(self, q, batch_size:int, num_workers:int, transform):
+        assert isinstance(q, mp.managers.BaseProxy) or isinstance(q, tmp.managers.BaseProxy)
+        assert batch_size > 0
+        assert num_workers > 0
+
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.m = tmp.Manager()
+        self.source = q
+        self.sink = self.m.Queue(maxsize=batch_size*3)
+
+        self.pool = tmp.Pool(num_workers)
+        for i in range(num_workers):
+            r = self.pool.apply_async(self._worker_loop, (self.source, self.sink, transform))
+
+
+    @staticmethod
+    def _worker_loop(source, sink, transform):
+        try:
+            while True:
+                in_ = source.get(block=True)
+                out = transform(in_)
+                sink.put(out, block=True)
+        except Exception as e:
+            print('[exception in StreamingDataloader]')
+            print(e)
+
+
+    def __iter__(self):
+        return self
+
+
+    def __next__(self):
+        print('next?')
+        batch = [self.sink.get(block=True)]
+        for i in range(self.batch_size-1):
+            try:
+                batch.append(self.sink.get_nowait())
+            except queue.Empty:
+                break
+        return batch 
+
+    def close(self):
+        self.pool.terminate()
 
 
 def DataLoaderIterator(loader, num=None, last_step=0):

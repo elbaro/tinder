@@ -5,7 +5,9 @@ import atexit
 from typing import List, Iterator, Tuple
 import asyncio
 from threading import Thread
-from multiprocessing import Queue
+import multiprocessing as mp
+import multiprocessing.managers
+from multiprocessing import Queue, Process
 import queue
 
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
@@ -377,7 +379,7 @@ class KafkaConsumer(object):
         while True:
             batch = self.consumer.consume(num_messages=max_batch_size, timeout=1)
             if batch:
-                ret = [msg.value() for msg in batch if (msg.error() is None)]
+                ret = [msg.value().decode() for msg in batch if (msg.error() is None)]
                 if ret:
                     break
 
@@ -386,3 +388,21 @@ class KafkaConsumer(object):
     def iter(self, batch_size: int):
         while True:
             yield self.get(batch_size)
+
+    def _drain(self, batch_size: int):
+        while True:
+            for batch in self.iter(batch_size):
+                for msg in batch:
+                    self.q.put(msg, block=True)
+            
+
+    def start_drain(self, batch_size:int, capacity:int) -> mp.managers.BaseProxy :
+        self.m = mp.Manager()
+        self.q = self.m.Queue(capacity)
+        self.p = Process(target=self._drain, args=(batch_size,))
+        self.p.start()
+        return self.q
+
+    def stop_drain():
+        if self.p is not None:
+            raise NotImplementedError()
