@@ -4,6 +4,12 @@ Serving
 
 .. currentmodule:: tinder.serving
 
+.. autoclass:: KafkaConsumer
+    :members:
+
+.. autoclass:: KafkaProducer
+    :members:
+
 .. autoclass:: RedisQueue
     :members:
 
