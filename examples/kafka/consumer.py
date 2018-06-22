@@ -1,8 +1,8 @@
 import tinder
 import time
 
-q = tinder.serving.KafkaConsumer('test_q', 'example_consumer')
+q = tinder.serving.KafkaConsumer('test_q', 10, 'example_consumer')
 
-for batch in q.iter(100):
+for batch in q.iter(10):
     print(batch)
-    time.sleep(1)
+    # time.sleep(1)

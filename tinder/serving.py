@@ -9,6 +9,7 @@ import multiprocessing as mp
 import multiprocessing.managers
 from multiprocessing import Queue, Process
 import queue
+from .batch import pop_batch
 
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from pika.adapters import AsyncioConnection
@@ -348,12 +349,13 @@ from confluent_kafka import Producer, Consumer
 
 
 class KafkaProducer(object):
+    """
+    Args:
+        topic (str): the name of a topic (queue) you publish to.
+        host (str, optional): Defaults to 'localhost'.
+    """
+
     def __init__(self, topic: str, host: str = 'localhost'):
-        """
-        Args:
-            topic (str): the name of a topic (queue) you publish to.
-            host (str, optional): Defaults to 'localhost'.
-        """
 
         self.topic = topic
         self.producer = Producer({
@@ -379,7 +381,7 @@ class KafkaProducer(object):
 
 
 class KafkaConsumer(object):
-    def __init__(self, topic: str, consumer_id: str, host: str = 'localhost'):
+    def __init__(self, topic: str, prefetch: int, consumer_id: str, host: str = 'localhost'):
         """
         Args:
             topic (str): the name of a topic.
@@ -388,42 +390,46 @@ class KafkaConsumer(object):
         """
 
         self.topic = topic
-        self.consumer = Consumer({
+        self.host = host
+        self.consumer_id = consumer_id
+        self.running = False
+        
+        self.m = mp.Manager()
+        self.q = self.m.Queue(prefetch)
+
+        self.running = False
+        self.start_drain()
+
+    def get(self, max_batch_size: int) -> List[str]:
+        return pop_batch(self.q, max_batch_size)
+
+    def iter(self, max_batch_size: int):
+        while True:
+            yield pop_batch(self.q, max_batch_size)
+
+    @staticmethod
+    def _drain(host, consumer_id, topic, q):
+        consumer = Consumer({
             'bootstrap.servers': host,
             'group.id': consumer_id,
             'default.topic.config': {
                 'auto.offset.reset': 'smallest'
             }
         })
-        self.consumer.subscribe([self.topic])
-
-    def get(self, max_batch_size: int) -> List[str]:
+        consumer.subscribe([topic])
         while True:
-            batch = self.consumer.consume(num_messages=max_batch_size, timeout=1)
-            if batch:
-                ret = [msg.value().decode() for msg in batch if (msg.error() is None)]
-                if ret:
-                    break
+            msg = consumer.poll(1.0)
+            if (msg is not None) and (msg.error() is None):
+                q.put(msg.value().decode(), block=True)
 
-        return ret
-
-    def iter(self, batch_size: int):
-        while True:
-            yield self.get(batch_size)
-
-    def _drain(self, batch_size: int):
-        while True:
-            for batch in self.iter(batch_size):
-                for msg in batch:
-                    self.q.put(msg, block=True)
-
-    def start_drain(self, batch_size: int, capacity: int) -> mp.managers.BaseProxy:
-        self.m = mp.Manager()
-        self.q = self.m.Queue(capacity)
-        self.p = Process(target=self._drain, args=(batch_size,))
-        self.p.start()
-        return self.q
+    def start_drain(self):
+        if not self.running:
+            self.running = True
+            self.p = Process(target=self._drain, args=(self.host, self.consumer_id, self.topic, self.q))
+            self.p.start()
 
     def stop_drain():
-        if self.p is not None:
+        if self.running:
+            self.running = False
             raise NotImplementedError()
+
