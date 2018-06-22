@@ -18,7 +18,40 @@ def hash_group(s: str, mod: int):
 
 
 class StreamingDataloader(object):
-    def __init__(self, q, batch_size:int, num_workers:int, transform):
+    """A dataloader for streaming.
+
+    If you have a stream of data (e.g. from RabbitMQ or Kafka), you cannot use a traditional Pytorch Dataset which requires `__len__` to be defined.
+    In this case, you can put your streaming data into multiprocessing.Manager().Queue() in the background and pass it to StreamingDataloader.
+
+    - StreamingDataloader is an iterator.
+    - `__next__` is blocking and returns at least one element.
+    - It never raises `StopIteration`.
+
+    Example::
+
+        import tinder
+
+        def preprocess(msg:str):
+            return '(' + msg + ')' + str(len(msg))
+
+        c = tinder.serving.KafkaConsumer(topic='filenames', consumer_id='anonymous_123')
+
+        q = c.start_drain(batch_size=3, capacity=20)
+        loader = tinder.dataset.StreamingDataloader(q, batch_size=5, num_workers=2, transform=preprocess)
+
+        for batch in loader:
+            print('batch: ', batch)
+    """
+
+    def __init__(self, q, batch_size: int, num_workers: int, transform):
+        """
+        Args:
+            q: A thread-safe queue. It should be multiprocessing.Manager().Queue or torch.multiprocessing.Manager().Queue.
+            batch_size (int): the maximum size of batch.
+            num_workers (int): the number of processes.
+            transform: a function that receives a string (msg) and returns any object.
+        """
+
         assert isinstance(q, mp.managers.BaseProxy) or isinstance(q, tmp.managers.BaseProxy)
         assert batch_size > 0
         assert num_workers > 0
@@ -33,7 +66,6 @@ class StreamingDataloader(object):
         for i in range(num_workers):
             r = self.pool.apply_async(self._worker_loop, (self.source, self.sink, transform))
 
-
     @staticmethod
     def _worker_loop(source, sink, transform):
         try:
@@ -45,20 +77,17 @@ class StreamingDataloader(object):
             print('[exception in StreamingDataloader]')
             print(e)
 
-
     def __iter__(self):
         return self
 
-
     def __next__(self):
-        print('next?')
         batch = [self.sink.get(block=True)]
         for i in range(self.batch_size-1):
             try:
                 batch.append(self.sink.get_nowait())
             except queue.Empty:
                 break
-        return batch 
+        return batch
 
     def close(self):
         self.pool.terminate()

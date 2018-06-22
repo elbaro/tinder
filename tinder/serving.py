@@ -349,6 +349,12 @@ from confluent_kafka import Producer, Consumer
 
 class KafkaProducer(object):
     def __init__(self, topic: str, host: str = 'localhost'):
+        """
+        Args:
+            topic (str): the name of a topic (queue) you publish to.
+            host (str, optional): Defaults to 'localhost'.
+        """
+
         self.topic = topic
         self.producer = Producer({
             'bootstrap.servers': host,
@@ -356,15 +362,31 @@ class KafkaProducer(object):
         })
 
     def send(self, msg: str):
+        """send a single string.
+
+        Args:
+            msg (str): a message to send.
+        """
+
         self.producer.poll(0)
         self.producer.produce(self.topic, msg.encode(), callback=None)
 
     def flush(self):
+        """flush the reamining kafka messages.
+        """
+
         self.producer.flush()
 
 
 class KafkaConsumer(object):
     def __init__(self, topic: str, consumer_id: str, host: str = 'localhost'):
+        """
+        Args:
+            topic (str): the name of a topic.
+            consumer_id (str): Kafka remembers the last message read by consumer_id.
+            host (str, optional): Defaults to 'localhost'. [description]
+        """
+
         self.topic = topic
         self.consumer = Consumer({
             'bootstrap.servers': host,
@@ -394,9 +416,8 @@ class KafkaConsumer(object):
             for batch in self.iter(batch_size):
                 for msg in batch:
                     self.q.put(msg, block=True)
-            
 
-    def start_drain(self, batch_size:int, capacity:int) -> mp.managers.BaseProxy :
+    def start_drain(self, batch_size: int, capacity: int) -> mp.managers.BaseProxy:
         self.m = mp.Manager()
         self.q = self.m.Queue(capacity)
         self.p = Process(target=self._drain, args=(batch_size,))

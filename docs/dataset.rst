@@ -4,7 +4,7 @@ Dataset
 
 .. currentmodule:: tinder.dataset
 
-.. autoclass:: StreamingDataset
+.. autoclass:: StreamingDataloader
     :members:
 
 .. autofunction:: DataLoaderIterator
