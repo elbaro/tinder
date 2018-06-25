@@ -19,7 +19,6 @@ Tinder - extra utils for PyTorch
     image
     layers
     dataset
-    itertools
     metrics
 
 
@@ -28,4 +27,4 @@ Tinder - extra utils for PyTorch
     :caption: Serving
 
     queue
-
+    batch
