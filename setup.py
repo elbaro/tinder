@@ -30,6 +30,7 @@ setup(name='tinder',
           'redis',
           'pika',
           'confluent_kafka',
+          'asyncio-nats-streaming'
       ],
       dependency_links = [
           "git+https://github.com/nir0s/backtrace.git#egg=backtrace"
