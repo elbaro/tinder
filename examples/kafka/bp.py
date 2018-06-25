@@ -15,5 +15,9 @@ while True:
     msg = 'msg ' + str(i)
     producer.poll(0)
     producer.produce('test_q', msg.encode(), callback=None)
-    time.sleep(0.1)
+    #time.sleep(0.1)
 
+    if i==20:
+        break
+
+time.sleep(10)

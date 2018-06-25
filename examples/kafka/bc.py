@@ -13,10 +13,12 @@ consumer.subscribe(['test_q'])
 
 while True:
     while True:
-        print('.')
-        batch = consumer.consume(num_messages=100, timeout=5)
+        t0 = time.time()
+        batch = consumer.consume(num_messages=100, timeout=1)
+        t = time.time()
+        print('consume() took ', t-t0)
         if len(batch) > 0:
             break
-    print(len(batch))
-    print('---')
-    time.sleep(1)
+    batch = [sample.value().decode() for sample in batch if (sample.error() is None)]
+    print(len(batch), batch)
+    #time.sleep(1)

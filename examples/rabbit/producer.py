@@ -1,7 +1,7 @@
 import tinder
 import time
 
-q = tinder.serving.RabbitProducer('test_q')
+q = tinder.queue.RabbitProducer('test_q')
 
 i = 0
 while True:

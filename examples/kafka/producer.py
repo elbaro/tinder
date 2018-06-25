@@ -1,7 +1,7 @@
 import tinder
 import time
 
-q = tinder.serving.KafkaProducer('test_q')
+q = tinder.queue.KafkaProducer('test_q')
 i = 0
 
 while True:

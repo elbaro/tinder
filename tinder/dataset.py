@@ -34,7 +34,7 @@ class StreamingDataloader(object):
         def preprocess(msg:str):
             return '(' + msg + ')' + str(len(msg))
 
-        c = tinder.serving.KafkaConsumer(topic='filenames', consumer_id='anonymous_123')
+        c = tinder.queue.KafkaConsumer(topic='filenames', consumer_id='anonymous_123')
 
         q = c.start_drain(batch_size=3, capacity=20)
         loader = tinder.dataset.StreamingDataloader(q, batch_size=5, num_workers=2, transform=preprocess)
@@ -72,7 +72,8 @@ class StreamingDataloader(object):
             while True:
                 in_ = source.get(block=True)
                 out = transform(in_)
-                sink.put(out, block=True)
+                if out is not None:
+                    sink.put(out, block=True)
         except Exception as e:
             print('[exception in StreamingDataloader]')
             print(e)

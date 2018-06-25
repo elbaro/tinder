@@ -4,7 +4,7 @@ import tinder
 def preprocess(msg:str):
     return msg + str(len(msg))
 
-c = tinder.serving.KafkaConsumer(topic='sfd', consumer_id='anonymous_123')
+c = tinder.queue.KafkaConsumer(topic='sfd', consumer_id='anonymous_123')
 
 print('consumer.get: ',c.get(max_batch_size=3))
 

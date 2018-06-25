@@ -24,7 +24,7 @@ class RedisQueue(object):
 
             import redis
             import tinder
-            q = tinder.serving.RedisQueue('q1')
+            q = tinder.queue.RedisQueue('q1')
 
         Args:
             queue (str): the name of a queue.
@@ -242,7 +242,7 @@ class RabbitConsumer(object):
         Args:
             ack_tags: a single ack tag or a list of ack tags of successful messages.
         """
-        #self.conn.loop.call_soon_threadsafe(self._ack, args=(ack_tags,))
+        # self.conn.loop.call_soon_threadsafe(self._ack, args=(ack_tags,))
         self.conn.loop.call_soon_threadsafe(lambda: self._ack(ack_tags))
 
     def _ack(self, ack_tags):
@@ -393,7 +393,7 @@ class KafkaConsumer(object):
         self.host = host
         self.consumer_id = consumer_id
         self.running = False
-        
+
         self.m = mp.Manager()
         self.q = self.m.Queue(prefetch)
 
@@ -428,8 +428,135 @@ class KafkaConsumer(object):
             self.p = Process(target=self._drain, args=(self.host, self.consumer_id, self.topic, self.q))
             self.p.start()
 
-    def stop_drain():
+    def stop_drain(self):
         if self.running:
             self.running = False
             raise NotImplementedError()
 
+
+import asyncio
+from nats.aio.client import Client as NATS
+from stan.aio.client import Client as STAN
+
+
+class NatsConsumer(object):
+    """A Nats Streaming consumer using durable queues.
+
+    It allows you to resume your progress with manual acks.
+
+    A durable subscription is identified by durable_name & client_name.
+
+    Args:
+        subject (str) : a subject to subscribe
+        max_flight (int) : the maximum number of msgs to hold in the client
+        durable_name (str)
+        client_name (str) : Defaults to 'clientid'.
+        cluster_id (str) : Defaults to 'test-cluster'.
+    """
+
+    def __init__(self, subject: str, max_inflight: int, durable_name: str = '', client_name: str = 'consumer', cluster_id: str = 'test-cluster'):
+        self.subject = subject
+        self.max_inflight = max_inflight
+        self.durable_name = durable_name
+        self.client_name = client_name
+        self.cluster_id = cluster_id
+
+        self.q = mp.Manager().Queue()
+        self.loop = asyncio.new_event_loop()
+        self.p = Process(target=self._run, args=())
+        self.p.start()
+
+    def _run(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self._connect())
+        self.loop.run_forever()
+
+    async def cb(self, msg):
+        print(msg.data.decode())
+        self.q.put(msg)
+
+    async def _connect(self):
+        self.nc = NATS()
+        await self.nc.connect(io_loop=self.loop)
+
+        self.sc = STAN()
+        await self.sc.connect(self.cluster_id, self.client_name, nats=self.nc)
+        self.sub = await self.sc.subscribe(self.subject, durable_name=self.durable_name, cb=self.cb, max_inflight=self.max_inflight, start_at='first', manual_acks=True, ack_wait=30)
+
+    def ack(self, msg):
+        print('ack ', msg)
+        self.loop.call_soon_threadsafe(self._ack, (msg,))
+
+    def _ack(self, msg):
+        self.loop.call_soon_threadsafe(self.sc.ack, (msg,))
+
+    async def _close(self):
+        await self.sub.unsubscribe()
+        await self.sc.close()
+        await self.nc.close()
+
+    def close(self):
+        self.loop.call_soon_threadsafe(self._close)
+        self.loop.call_soon_threadsafe(self.loop.stop)
+
+
+class NatsProducer(object):
+    """A Nats Streaming producer using durable queues.
+
+    It allows you to resume your progress with manual acks.
+
+    A durable subscription is identified by durable_name & client_name.
+
+    Args:
+        subject (str) : a subject to subscribe
+        max_flight (int) : the maximum number of msgs to hold in the client
+        durable_name (str)
+        client_name (str) : Defaults to 'clientid'.
+        cluster_id (str) : Defaults to 'test-cluster'.
+    """
+
+    def __init__(self, subject: str, client_name: str = 'producer', cluster_id: str = 'test-cluster'):
+        self.startup_lock = mp.Lock()
+
+        self.subject = subject
+        self.client_name = client_name
+        self.cluster_id = cluster_id
+
+        self.startup_lock.acquire()
+        self.loop = asyncio.new_event_loop()
+        self.p = Thread(target=self._run)
+        self.p.start()
+
+        self.startup_lock.acquire()
+
+    def _run(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self._connect())
+        self.startup_lock.release()
+        self.loop.run_forever()
+
+    async def _connect(self):
+        self.nc = NATS()
+        await self.nc.connect(io_loop=self.loop)
+
+        self.sc = STAN()
+        await self.sc.connect(self.cluster_id, self.client_name, nats=self.nc)
+
+    def send(self, msg: str):
+        self.loop.call_soon_threadsafe(self._send, msg)
+
+    def _send(self, msg: str):
+        asyncio.ensure_future(self.sc.publish(self.subject, msg.encode(), ack_handler=self.ack_handler))
+
+    @staticmethod
+    async def ack_handler(ack):
+        pass
+        # print('new ack: {}'.format(ack.guid))
+
+    async def _close(self):
+        await self.sc.close()
+        await self.nc.close()
+
+    def close(self):
+        self.loop.call_soon_threadsafe(self._close)
+        self.loop.call_soon_threadsafe(self.loop.stop)

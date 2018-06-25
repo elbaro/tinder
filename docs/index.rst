@@ -27,5 +27,5 @@ Tinder - extra utils for PyTorch
     :maxdepth: 1
     :caption: Serving
 
-    serving
+    queue
 
