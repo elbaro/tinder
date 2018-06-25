@@ -14,9 +14,36 @@ def pop(q, max_batch_size: int):
     return batch
 
 
+def pop_with_ack(q, max_batch_size: int):
+    """
+    Args:
+        q
+        max_batch_size (int)
+
+    Returns:
+        (msgs, acks)
+    """
+
+    assert max_batch_size > 0
+    batch = [q.get(block=True)]
+    for i in range(max_batch_size-1):
+        try:
+            msg = q.get_nowait()
+            batch.append(msg)
+        except queue.Empty:
+            break
+
+    return list(zip(*batch))
+
+
 def iter_from_q(q, max_batch_size: int):
     while True:
         yield pop(q, max_batch_size)
+
+
+def iter_with_ack_from_q(q, max_batch_size: int):
+    while True:
+        yield pop_with_ack(q, max_batch_size)
 
 
 class _batch_known_len(object):

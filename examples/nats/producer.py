@@ -1,7 +1,7 @@
 import tinder
 import time
 
-p = tinder.queue.NatsProducer('topic')
+p = tinder.queue.NatsProducer('topic', client_name='example_producer')
 
 i = 0
 while True:

@@ -1,9 +1,8 @@
 import tinder
 
-c = tinder.queue.NatsConsumer('topic', max_inflight=5, durable_name='d3')
-
+c = tinder.queue.NatsConsumer('topic', max_inflight=5, client_name='example_client')
 
 while True:
-    batch = tinder.batch.pop(c.q,3)
-    print(batch)
-
+    for batch, ack in tinder.batch.iter_with_ack_from_q(c.q, 3):
+        print('batch:', batch, 'ack:', ack)
+        c.ack(ack)

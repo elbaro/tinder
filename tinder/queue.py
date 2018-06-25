@@ -9,7 +9,8 @@ import multiprocessing as mp
 import multiprocessing.managers
 from multiprocessing import Queue, Process
 import queue
-from .batch import pop_batch
+from .batch import pop
+from .utils import WaitGroup
 
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from pika.adapters import AsyncioConnection
@@ -38,7 +39,7 @@ class RedisQueue(object):
         self.unique_history = unique_history
         if self.unique_history:
             self.history_queue = self.queue + '_all'
-        if redis_client == None:
+        if redis_client is None:
             redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
         self.soft_capacity = soft_capacity
         self.cooldown = 0.1
@@ -224,7 +225,7 @@ class RabbitConsumer(object):
         for i in range(max_batch_size-1):
             try:
                 l.append(self.buf.get(block=False))
-            except queue.Empty:
+            except queue.Empty:  # disable:
                 break
 
         msgs = [x[0] for x in l]
@@ -259,7 +260,7 @@ class RabbitConsumer(object):
         Args:
             ack_tag: the ack tag of the last successful message.
         """
-        self.conn.ioloop.call_soon_threadsafe(self._ack_upto, args=(ack_tag,))
+        self.conn.ioloop.call_soon_threadsafe(self._ack_upto, ack_tag)
 
     def _ack_upto(self, ack_tag):
         self.channel.basic_ack(ack_tag, multiple=True)
@@ -401,11 +402,11 @@ class KafkaConsumer(object):
         self.start_drain()
 
     def get(self, max_batch_size: int) -> List[str]:
-        return pop_batch(self.q, max_batch_size)
+        return pop(self.q, max_batch_size)
 
     def iter(self, max_batch_size: int):
         while True:
-            yield pop_batch(self.q, max_batch_size)
+            yield pop(self.q, max_batch_size)
 
     @staticmethod
     def _drain(host, consumer_id, topic, q):
@@ -437,6 +438,8 @@ class KafkaConsumer(object):
 import asyncio
 from nats.aio.client import Client as NATS
 from stan.aio.client import Client as STAN
+import stan
+import stan.pb.protocol_pb2 as protocol
 
 
 class NatsConsumer(object):
@@ -454,16 +457,17 @@ class NatsConsumer(object):
         cluster_id (str) : Defaults to 'test-cluster'.
     """
 
-    def __init__(self, subject: str, max_inflight: int, durable_name: str = '', client_name: str = 'consumer', cluster_id: str = 'test-cluster'):
+    def __init__(self, subject: str, max_inflight: int, client_name: str, durable_name: str = 'durable', cluster_id: str = 'test-cluster'):
         self.subject = subject
         self.max_inflight = max_inflight
         self.durable_name = durable_name
         self.client_name = client_name
         self.cluster_id = cluster_id
 
-        self.q = mp.Manager().Queue()
+        # self.q = mp.Manager().Queue()
+        self.q = mp.Queue()
         self.loop = asyncio.new_event_loop()
-        self.p = Process(target=self._run, args=())
+        self.p = Thread(target=self._run, args=())
         self.p.start()
 
     def _run(self):
@@ -472,8 +476,10 @@ class NatsConsumer(object):
         self.loop.run_forever()
 
     async def cb(self, msg):
-        print(msg.data.decode())
-        self.q.put(msg)
+        # stan.aio.client.Msg = {proto, sub(subscription)}
+        # Msg is not pickable
+        self.q.put((msg.proto.data.decode(), msg.proto.sequence))
+        # self._ack(msg.proto.sequence)
 
     async def _connect(self):
         self.nc = NATS()
@@ -483,12 +489,18 @@ class NatsConsumer(object):
         await self.sc.connect(self.cluster_id, self.client_name, nats=self.nc)
         self.sub = await self.sc.subscribe(self.subject, durable_name=self.durable_name, cb=self.cb, max_inflight=self.max_inflight, start_at='first', manual_acks=True, ack_wait=30)
 
-    def ack(self, msg):
-        print('ack ', msg)
-        self.loop.call_soon_threadsafe(self._ack, (msg,))
+    def ack(self, seq: int):
+        self.loop.call_soon_threadsafe(self._ack, seq)
 
-    def _ack(self, msg):
-        self.loop.call_soon_threadsafe(self.sc.ack, (msg,))
+    def _ack(self, seq: int):
+        if not (isinstance(seq, list) or isinstance(seq, tuple)):
+            seq = [seq]
+
+        for seq in seq:
+            ack = protocol.Ack()
+            ack.subject = self.subject
+            ack.sequence = seq
+            asyncio.ensure_future(self.sc._nc.publish(self.sub.ack_inbox, ack.SerializeToString()), loop=self.loop)
 
     async def _close(self):
         await self.sub.unsubscribe()
@@ -496,7 +508,7 @@ class NatsConsumer(object):
         await self.nc.close()
 
     def close(self):
-        self.loop.call_soon_threadsafe(self._close)
+        self.loop.run_coroutine_threadsafe(self._close)
         self.loop.call_soon_threadsafe(self.loop.stop)
 
 
@@ -515,7 +527,8 @@ class NatsProducer(object):
         cluster_id (str) : Defaults to 'test-cluster'.
     """
 
-    def __init__(self, subject: str, client_name: str = 'producer', cluster_id: str = 'test-cluster'):
+    def __init__(self, subject: str, client_name: str, cluster_id: str = 'test-cluster'):
+        self.wg = WaitGroup()
         self.startup_lock = mp.Lock()
 
         self.subject = subject
@@ -528,6 +541,7 @@ class NatsProducer(object):
         self.p.start()
 
         self.startup_lock.acquire()
+        atexit.register(self.close)
 
     def _run(self):
         asyncio.set_event_loop(self.loop)
@@ -543,20 +557,23 @@ class NatsProducer(object):
         await self.sc.connect(self.cluster_id, self.client_name, nats=self.nc)
 
     def send(self, msg: str):
+        self.wg.add(1)
         self.loop.call_soon_threadsafe(self._send, msg)
 
     def _send(self, msg: str):
         asyncio.ensure_future(self.sc.publish(self.subject, msg.encode(), ack_handler=self.ack_handler))
 
-    @staticmethod
-    async def ack_handler(ack):
-        pass
-        # print('new ack: {}'.format(ack.guid))
+    async def ack_handler(self, ack):
+        self.wg.done()
 
     async def _close(self):
         await self.sc.close()
         await self.nc.close()
 
+    def flush(self):
+        self.wg.wait()
+
     def close(self):
-        self.loop.call_soon_threadsafe(self._close)
+        self.flush()
+        self.loop.run_coroutine_threadsafe(self._close)
         self.loop.call_soon_threadsafe(self.loop.stop)
