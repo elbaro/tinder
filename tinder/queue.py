@@ -508,8 +508,9 @@ class NatsConsumer(object):
         await self.nc.close()
 
     def close(self):
-        self.loop.run_coroutine_threadsafe(self._close)
-        self.loop.call_soon_threadsafe(self.loop.stop)
+        raise NotImplementedError
+        # asyncio.run_coroutine_threadsafe(self._close(), loop=self.loop)
+        # self.loop.call_soon_threadsafe(self.loop.stop)
 
 
 class NatsProducer(object):
@@ -543,6 +544,8 @@ class NatsProducer(object):
         self.startup_lock.acquire()
         atexit.register(self.close)
 
+        self.closed = False
+
     def _run(self):
         asyncio.set_event_loop(self.loop)
         self.loop.run_until_complete(self._connect())
@@ -563,7 +566,7 @@ class NatsProducer(object):
     def _send(self, msg: str):
         asyncio.ensure_future(self.sc.publish(self.subject, msg.encode(), ack_handler=self.ack_handler))
 
-    async def ack_handler(self, ack):
+    async def ack_handler(self, _ack):
         self.wg.done()
 
     async def _close(self):
@@ -574,6 +577,9 @@ class NatsProducer(object):
         self.wg.wait()
 
     def close(self):
-        self.flush()
-        self.loop.run_coroutine_threadsafe(self._close)
-        self.loop.call_soon_threadsafe(self.loop.stop)
+        raise NotImplementedError
+        # if not self.closed:
+        #     self.closed = True
+        #     self.flush()
+        #     asyncio.run_coroutine_threadsafe(self._close(), loop=self.loop)
+        #     self.loop.call_soon_threadsafe(self.loop.stop)

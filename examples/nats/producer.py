@@ -9,5 +9,7 @@ while True:
     msg = 'hi ' + str(i)
     print(msg)
     p.send(msg)
-    time.sleep(1)
-
+    if i==20:
+        break
+p.close()
+print('over')
