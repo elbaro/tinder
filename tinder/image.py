@@ -1,5 +1,6 @@
 import numpy as np
 from typing import NamedTuple, List
+from PIL import Image
 
 
 class BoundingBox(NamedTuple):
@@ -58,13 +59,20 @@ def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingB
 
     if boxes_to_transform:
         return img, \
-               [BoundingBox.from_size(
-                   box.left - crop.left,
-                   box.top - crop.top,
-                   box.width,
-                   box.height,
-                   crop.width,  # already int
-                   crop.height)  # already int
-                   for box in boxes_to_transform]
+            [BoundingBox.from_size(
+                box.left - crop.left,
+                box.top - crop.top,
+                box.width,
+                box.height,
+                crop.width,  # already int
+                crop.height)  # already int
+             for box in boxes_to_transform]
 
+    return img
+
+
+def filename_to_normalized_rgb(filename: str, wh):
+    img = Image.open(filename).convert('RGB').resize(wh)
+    img = np.asarray(img)
+    img = np.transpose(img, axes=(2, 0, 1)).astype(np.float32) / 255.0 * 2 - 1  # [C,H,W], -1~1
     return img
