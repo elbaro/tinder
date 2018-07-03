@@ -76,11 +76,12 @@ class Saver(object):
                     print(epoch, file=f)
                     print(score, file=f)
 
+        new_dic = {}
         for key, value in dic.items():
-            dic[key] = value.state_dict()
-        dic['epoch'] = epoch
+            new_dic[key] = value.state_dict()
+        new_dic['epoch'] = epoch
 
-        torch.save(dic, self.path_for_epoch(epoch))
+        torch.save(new_dic, self.path_for_epoch(epoch))
 
     def load(self, dic: dict, epoch: int):
         """Load the model.
