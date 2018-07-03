@@ -1,5 +1,33 @@
 import os
 import torch
+import urllib
+import time
+import sys
+
+
+def _reporthook(count, block_size, total_size):
+    global start_time
+    if count == 0:
+        start_time = time.time()
+        return
+    duration = time.time() - start_time
+    progress_size = int(count * block_size)
+    speed = int(progress_size / (1024 * duration))
+    percent = int(count * block_size * 100 / total_size)
+    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
+                     (percent, progress_size / (1024 * 1024), speed, duration))
+    sys.stdout.flush()
+
+
+def assert_download(weight_url, weight_dest):
+    if not os.path.exists(weight_dest):
+        if weight_url:
+            print('downloading weight:')
+            print('    ' + weight_url)
+            print('    ' + weight_dest)
+            urllib.request.urlretrieve(weight_url, weight_dest, reporthook=_reporthook)
+        else:
+            raise NotImplementedError("please specify url to download in your model")
 
 
 class Saver(object):
