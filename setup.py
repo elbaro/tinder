@@ -19,18 +19,13 @@ setup(name='tinder',
       author_email='elbaro@users.noreply.github.com',
       license='MIT',
       packages=['tinder'],
-      keywords=['tinder','pytorch','torch'],
+      keywords=['tinder', 'pytorch', 'torch'],
       zip_safe=False,
       install_requires=[
           'colorama',
-          'matplotlib',
           'backtrace',
           'numpy',
           'tqdm',
-          'redis',
-          'pika',
-          'confluent_kafka',
-          'asyncio-nats-streaming'
       ],
       dependency_links = [
           "git+https://github.com/nir0s/backtrace.git#egg=backtrace"

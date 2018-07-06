@@ -38,10 +38,19 @@ class BoundingBox(NamedTuple):
 
     def stretch_by_ratio(self, left: float, top: float, right: float, bottom: float):
         left = max(0, self.left - self.width * left)
-        right = min(self.max_width, self.left + self.width + self.width * right)
+        right = min(self.max_width, self.right + self.width * right)
 
         top = max(0, self.top - self.height * top)
-        bottom = min(self.max_height, self.top + self.height + self.height * bottom)
+        bottom = min(self.max_height, self.bottom + self.height * bottom)
+
+        return BoundingBox.from_points(left, top, right, bottom, self.max_width, self.max_height)
+
+    def stretch_by(self, left: float, top: float, right: float, bottom: float):
+        left = max(0, self.left - left)
+        right = min(self.max_width, self.right + right)
+
+        top = max(0, self.top - top)
+        bottom = min(self.max_height, self.bottom + bottom)
 
         return BoundingBox.from_points(left, top, right, bottom, self.max_width, self.max_height)
 
