@@ -5,7 +5,7 @@ LONG_DESCRIPTION = """
 """
 
 setup(name='tinder',
-      version='0.1.2',
+      version='0.1.3',
       description='Pytorch helpers and utils',
       long_description=LONG_DESCRIPTION,
       classifiers=[
