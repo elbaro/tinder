@@ -5,16 +5,16 @@ import multiprocessing as mp
 from typing import Callable
 import queue
 
+import hashlib
 
-def hash_group(s: str, mod: int):
+
+def hash100(s: str):
     """
-    Hash a string into 0~(mod-1).
+    Hash a string into 1~100.
     Useful when you split a dataset into subsets.
     """
-    v = 0
-    for c in s:
-        v = (v*7717 + ord(c)) % mod
-    return v
+    h = hashlib.md5(s.encode())
+    return int(h.hexdigest(), base=16) % 100 + 1
 
 
 class StreamingDataloader(object):
