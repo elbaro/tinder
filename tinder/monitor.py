@@ -71,6 +71,17 @@ class Stats(SimpleNamespace):
     def clear(self):
         """Clear all stats.
         """
-
         for stat in self.__dict__.values():
             stat.clear()
+
+    def update(self, count, **kwargs):
+        for (k, v) in kwargs.items():
+            self.__dict__[k].update(v, count)
+
+    def log_average(self, tb, step: int):
+        for stat in self.__dict__.values():
+            tb.add_scalar(stat, stat.average, step)
+
+    def log_ema(self, tb, step: int):
+        for stat in self.__dict__.values():
+            tb.add_scalar(stat, stat.ema, step)

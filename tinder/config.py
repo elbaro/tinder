@@ -131,14 +131,15 @@ def override(config):
                 raise RuntimeError("unknown arg: " + key)
 
             default = config[key]
-            if isinstance(default, int) or default == Placeholder.INT:
+            if isinstance(default, bool) or default == Placeholder.BOOL:
+                value = bool(value)
+            elif isinstance(default, int) or default == Placeholder.INT:
                 value = int(value)
             elif isinstance(default, float) or default == Placeholder.FLOAT:
                 value = float(value)
             elif isinstance(default, str) or default == Placeholder.STR:
                 pass
-            elif isinstance(default, bool) or default == Placeholder.BOOL:
-                value = bool(value)
+
 
             new[key] = value
             config[key] = value
