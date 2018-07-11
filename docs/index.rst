@@ -17,6 +17,7 @@ Tinder - extra utils for PyTorch
     :caption: Extended classes
 
     image
+    nn
     layers
     dataset
     metrics
