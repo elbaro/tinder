@@ -120,8 +120,8 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
 
     Example::
 
-        gp = tinder.wgan_gp(D, real_img, fake_img)
-        loss = lambda*gp
+        gp = tinder.nn.loss_wgan_gp(D, real_img, fake_img)
+        loss = D(fake)-D(real)+10*gp
 
     Args:
         D (callable): A discriminator. Typically `nn.Module` or a lambda function that returns the score.
@@ -133,13 +133,14 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     """
 
     batch_size = real.size(0)
-    e = real.new_empty((batch_size,1,1,1), requires_grad=True).uniform_()
-    x_hat = (e * real + (1 - e) * fake).detach()
+    e = real.new_empty((batch_size, 1, 1, 1)).uniform_()
+    x_hat = (e * real + (1 - e) * fake).detach().requires_grad_(True)
     scores = D(x_hat)
 
-    grads = torch.autograd.grad(scores, x_hat, retain_graph=True, create_graph=True,
-                                grad_outputs=torch.ones_like(scores)
-                                )[0]
+    grads = torch.autograd.grad(scores, x_hat,
+                                grad_outputs=torch.ones_like(scores),
+                                retain_graph=True,
+                                create_graph=True)[0]
 
     norms = grads.view(batch_size, -1).norm(2, dim=1)
     return ((norms - 1) ** 2).mean()

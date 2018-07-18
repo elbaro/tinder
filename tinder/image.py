@@ -85,3 +85,10 @@ def filename_to_normalized_rgb(filename: str, wh):
     img = np.asarray(img)
     img = np.transpose(img, axes=(2, 0, 1)).astype(np.float32) / 255.0 * 2 - 1  # [C,H,W], -1~1
     return img
+
+
+def fft2d(img: np.ndarray):
+    from scipy import fftpack
+    if len(img.shape) == 3:
+        img = img.mean(axis=2)
+    return np.log(abs(fftpack.fft2(img)))

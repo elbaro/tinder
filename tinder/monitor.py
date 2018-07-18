@@ -74,7 +74,7 @@ class Stats(SimpleNamespace):
         for stat in self.__dict__.values():
             stat.clear()
 
-    def update(self, count, **kwargs):
+    def update(self, count=1, **kwargs):
         for (k, v) in kwargs.items():
             self.__dict__[k].update(v, count)
 
@@ -85,3 +85,17 @@ class Stats(SimpleNamespace):
     def log_ema(self, tb, step: int, format: str="%s"):
         for (name, stat) in self.__dict__.items():
             tb.add_scalar(format % name, stat.ema, step)
+
+    def display_average(self):
+        s = []
+        for (name, stat) in self.__dict__.items():
+            s.append(name + ': %.4F' % stat.average)
+
+        return '    '.join(s)
+
+    def display_ema(self):
+        s = []
+        for (name, stat) in self.__dict__.items():
+            s.append(name + ': %.4F' % stat.ema)
+
+        return '    '.join(s)
