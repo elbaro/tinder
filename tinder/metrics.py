@@ -1,8 +1,11 @@
 import torch
+import numpy as np
+
 
 def instance_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch.Tensor:
     raise NotImplementedError()
     pass
+
 
 def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch.Tensor:
     """
@@ -36,3 +39,67 @@ def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch
 
     out = torch.stack(out, dim=1)
     return out  # [N, C]
+
+
+class Mean(object):
+    pass
+
+
+class Accuracy(object):
+    pass
+
+
+class ConfusionMatrix(object):
+    EPS = 1e-5
+
+    def __init__(self, num_cls):
+        self.num_cls = num_cls
+        self.TP = np.zeros(self.num_cls)
+        self.TP_FN = np.zeros(self.num_cls)
+        self.TP_FP = np.zeros(self.num_cls)
+
+    def clear(self):
+        self.TP.fill(0)
+        self.TP_FN.fill(0)
+        self.TP_FP.fill(0)
+
+    def update(self, prediction, answer):
+        """[summary]
+
+        Args:
+            prediction ([type]): A torch.Tensor or numpy.ndarray of [N,C,...]
+            answer ([type]): A torch.Tensor or numpy.ndarray of [N,C,...]
+        """
+
+        # to # [N,C,?]
+        if isinstance(prediction, torch.Tensor):
+            prediction = prediction.view(-1)
+            answer = answer.view(-1)
+
+            for c in range(self.num_cls):
+                self.TP[c] += (prediction == c and answer == c).int().sum()
+                self.TP_FP[c] += (prediction == c).int().sum()
+                self.TP_FN[c] += (answer == c).int().sum()
+
+        elif isinstance(prediction, np.ndarray):
+            prediction = prediction.reshape(-1)
+            answer = answer.reshape(-1)
+
+            for c in range(self.num_cls):
+                self.TP[c] += (prediction == c and answer == c).sum()
+                self.TP_FP[c] += (prediction == c).sum()
+                self.TP_FN[c] += (answer == c).sum()
+
+    def precision(self):
+        return self.TP / (self.TP_FP+self.EPS)
+
+    def recall(self):
+        return self.TP / (self.TP_FN+self.EPS)
+
+    def f1_score_per_class(self):
+        precision = self.precision()
+        recall = self.recall()
+        return 2/((1/precision)+(1/recall))
+
+    def f1_score_mean(self):
+        return self.f1_score_per_class().mean()
