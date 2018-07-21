@@ -99,7 +99,7 @@ class ConfusionMatrix(object):
     def f1_score_per_class(self):
         precision = self.precision()
         recall = self.recall()
-        return 2/((1/precision)+(1/recall))
+        return 2/((1/(precision+self.EPS))+(1/(recall+self.EPS)))
 
     def f1_score_mean(self):
         return self.f1_score_per_class().mean()
