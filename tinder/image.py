@@ -87,8 +87,19 @@ def filename_to_normalized_rgb(filename: str, wh):
     return img
 
 
+def fft2d_log(img: np.ndarray):
+    from scipy import fftpack
+    if len(img.shape) == 3:
+        img = img.mean(axis=2)
+    f = fftpack.fft2(img)
+    f = fftpack.fftshift(f)
+    return np.log(abs(f))
+
+
 def fft2d(img: np.ndarray):
     from scipy import fftpack
     if len(img.shape) == 3:
         img = img.mean(axis=2)
-    return np.log(abs(fftpack.fft2(img)))
+    f = fftpack.fft2(img)
+    f = fftpack.fftshift(f)
+    return abs(f)

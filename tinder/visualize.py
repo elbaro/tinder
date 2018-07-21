@@ -1,13 +1,17 @@
+from PIL import Image
 import numpy as np
 import torch
 import matplotlib
 import matplotlib.pyplot as plt
 import pylab
+import tinder
 
 default_cmap = plt.get_cmap('Accent', 256)
 
+tinder.bootstrap()
 
-def show_imgs(imgs, rows=None, cols=None, cmaps: []=None):
+
+def show_imgs(imgs, rows=None, cols=None, cmaps: []=None, minmax=None, imshows=None):
     """
     Show an image grid in a popup window.
 
@@ -28,13 +32,31 @@ def show_imgs(imgs, rows=None, cols=None, cmaps: []=None):
     if not isinstance(imgs, list):
         imgs = [imgs]
 
+    for i, img in enumerate(imgs):
+        if img is None:
+            continue
+
+        if isinstance(img, Image.Image):
+            img = np.asarray(img)
+        elif type(img) == torch.Tensor:
+            img = img.detach().cpu().numpy()
+
+        if img.shape[0] <= 3:
+            img = np.transpose(img, axes=(1, 2, 0))
+
+        if img.shape[2]==1:
+            img = np.squeeze(img, axis=2)
+            
+
+        imgs[i] = img
+
     n = len(imgs)
-    if rows is None and cols is None:
+    if (rows is None) and (cols is None):
         rows = int(n**0.5)
         cols = (n-1)//rows+1
-    elif rows is None:
-        cols = (n-1)//rows+1
     elif cols is None:
+        cols = (n-1)//rows+1
+    elif rows is None:
         rows = (n-1)//cols+1
 
     assert len(imgs) <= rows*cols
@@ -43,28 +65,39 @@ def show_imgs(imgs, rows=None, cols=None, cmaps: []=None):
         cmaps = [False] * len(imgs)
     assert len(imgs) == len(cmaps)
 
-    fig = plt.figure()
+    if imshows is None:
+        imshows = []
+        fig = plt.figure()
 
-    for i, (img, cmap) in enumerate(zip(imgs, cmaps)):
-        if img is None:
-            continue
+        for i, (img, cmap) in enumerate(zip(imgs, cmaps)):
+            if img is None:
+                continue
 
-        if type(img) == torch.Tensor:
-            img = img.detach().cpu().numpy()
+            fig.add_subplot(rows, cols, i+1)
 
-        if img.shape[0] == 3:
-            img = np.transpose(img, axes=(1, 2, 0))
+            if cmap is True:
+                imshows.append(plt.imshow(img, cmap=default_cmap))
+            elif cmap is False or cmap is None:
+                imshows.append(plt.imshow(img))
+            else:
+                if minmax is None:
+                    imshows.append(plt.imshow(img, cmap=cmap, vmin=0, vmax=len(cmap.colors)))
+                else:
+                    imshows.append(plt.imshow(img, cmap=cmap, vmin=minmax[0], vmax=minmax[1]))
+    else:
+        j = 0
+        for i, (img, cmap) in enumerate(zip(imgs, cmaps)):
+            if img is None:
+                continue
 
-        fig.add_subplot(rows, cols, i+1)
+            imshows[j].set_data(img)
+            j += 1
 
-        if cmap is True:
-            plt.imshow(img, cmap=default_cmap)
-        elif cmap is False or cmap is None:
-            plt.imshow(img)
-        else:
-            plt.imshow(img, cmap=cmap, vmin=0, vmax=len(cmap.colors))
+    plt.draw()
+    plt.pause(0.001)
+    plt.waitforbuttonpress()
 
-    plt.show()
+    return imshows
 
 
 # def colorize(imgs, colormap=None):
