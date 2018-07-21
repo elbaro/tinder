@@ -132,14 +132,13 @@ def override(config):
 
             default = config[key]
             if isinstance(default, bool) or default == Placeholder.BOOL:
-                value = bool(value)
+                value = (value == 'True')  # bool('False')==True
             elif isinstance(default, int) or default == Placeholder.INT:
                 value = int(value)
             elif isinstance(default, float) or default == Placeholder.FLOAT:
                 value = float(value)
             elif isinstance(default, str) or default == Placeholder.STR:
                 pass
-
 
             new[key] = value
             config[key] = value
