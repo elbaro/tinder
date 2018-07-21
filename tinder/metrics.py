@@ -77,16 +77,16 @@ class ConfusionMatrix(object):
             answer = answer.view(-1)
 
             for c in range(self.num_cls):
-                self.TP[c] += (prediction == c and answer == c).int().sum()
-                self.TP_FP[c] += (prediction == c).int().sum()
-                self.TP_FN[c] += (answer == c).int().sum()
+                self.TP[c] += ((prediction == c) & (answer == c)).int().sum().item()
+                self.TP_FP[c] += (prediction == c).int().sum().item()
+                self.TP_FN[c] += (answer == c).int().sum().item()
 
         elif isinstance(prediction, np.ndarray):
             prediction = prediction.reshape(-1)
             answer = answer.reshape(-1)
 
             for c in range(self.num_cls):
-                self.TP[c] += (prediction == c and answer == c).sum()
+                self.TP[c] += ((prediction == c) & (answer == c)).sum()
                 self.TP_FP[c] += (prediction == c).sum()
                 self.TP_FN[c] += (answer == c).sum()
 
