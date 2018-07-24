@@ -137,12 +137,12 @@ class Saver(object):
             dic (dict): see save()
 
         Return:
-            int: the epoch of the loaded model. 0 if no model exists.
+            int: the epoch of the loaded model. -1 if no model exists.
         """
 
         files = list(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         if len(files) == 0:
-            return 0
+            return -1
 
         latest: str = max(files)
         assert latest.startswith('epoch_') and latest.endswith('.pth')
