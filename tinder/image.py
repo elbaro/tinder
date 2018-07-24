@@ -81,9 +81,11 @@ def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingB
 
 
 def filename_to_normalized_rgb(filename: str, wh):
-    img = Image.open(filename).convert('RGB').resize(wh)
+    img = Image.open(filename).resize(wh)
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
     img = np.asarray(img)
-    img = np.transpose(img, axes=(2, 0, 1)).astype(np.float32) / 255.0 * 2 - 1  # [C,H,W], -1~1
+    img = np.transpose(img, axes=(2, 0, 1)).astype(np.float32) / 255.0   # [C,H,W], 0~1
     return img
 
 
@@ -103,3 +105,45 @@ def fft2d(img: np.ndarray):
     f = fftpack.fft2(img)
     f = fftpack.fftshift(f)
     return abs(f)
+
+
+def pggan_bbox_from_landmarks(wh, e0e1m0m1s):
+    """[summary]
+
+    Args:
+        wh (tuple): (width, height)
+        e0e1m0m1s (list): [ [ e0,e1,m0,m1] ]
+
+    Returns:
+        A list of ([[x,y],[x,y],[x,y],[x,y]] in ccw, is_oversize)
+    """
+
+    ret = []
+    for (e0, e1, m0, m1) in e0e1m0m1s:
+
+        xx = e1-e0
+        yy = (e0+e1)/2-(m0+m1)/2
+
+        c = (e0+e1)/2 - 0.1*yy
+        s = max(4.0*np.linalg.norm(xx), 3.6*np.linalg.norm(yy))
+
+        x = np.array((xx[0] - yy[1], xx[1] + yy[0]))
+        x /= np.linalg.norm(x)
+        y = np.array((-x[1], x[0]))
+
+        # ccw
+        crop = [
+            (c - x*s/2 - y*s/2).tolist(),
+            (c - x*s/2 + y*s/2).tolist(),
+            (c + x*s/2 + y*s/2).tolist(),
+            (c + x*s/2 - y*s/2).tolist(),
+        ]
+
+        oversize = (
+            min(z for p in crop for z in p) < 0 or
+            max(p[0] for p in crop) >= wh[0] or
+            max(p[1] for p in crop) >= wh[1]
+        )
+        ret.append((crop, oversize))
+
+    return ret
