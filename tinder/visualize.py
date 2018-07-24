@@ -44,7 +44,7 @@ def show_imgs(imgs, rows=None, cols=None, cmaps: []=None, minmax=None, imshows=N
         if img.shape[0] <= 3:
             img = np.transpose(img, axes=(1, 2, 0))
 
-        if img.shape[2]==1:
+        if len(img.shape)==3 and img.shape[2]==1:
             img = np.squeeze(img, axis=2)
             
 
