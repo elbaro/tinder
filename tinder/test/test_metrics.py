@@ -9,8 +9,8 @@ def test_f1_score_numpy():
     y_pred = np.array([0, 2, 1, 0, 0, 1, 1, 1, 0, 2, 2, 2])
     c.update(y_true, y_pred)
 
-    assert np.allclose(c.f1_score_per_class(), np.array([0.5, 0.25, 0.25]))
-    assert np.allclose(c.f1_score_mean(), np.array([0.5, 0.25, 0.25]).mean())
+    assert np.allclose(c.f1_score_per_class(), np.array([0.5, 0.25, 0.25]), rtol=1e-4)
+    assert np.allclose(c.f1_score_mean(), np.array([0.5, 0.25, 0.25]).mean(), rtol=1e-4)
 
 
 def test_f1_score_torch():
@@ -19,5 +19,5 @@ def test_f1_score_torch():
     y_pred = torch.Tensor([0, 2, 1, 0, 0, 1, 1, 1, 0, 2, 2, 2])
     c.update(y_true, y_pred)
 
-    assert np.allclose(c.f1_score_per_class(), np.array([0.5, 0.25, 0.25]))
-    assert np.allclose(c.f1_score_mean(), np.array([0.5, 0.25, 0.25]).mean())
+    assert np.allclose(c.f1_score_per_class(), np.array([0.5, 0.25, 0.25]), rtol=1e-4)
+    assert np.allclose(c.f1_score_mean(), np.array([0.5, 0.25, 0.25]).mean(), rtol=1e-4)
