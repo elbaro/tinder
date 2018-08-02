@@ -80,8 +80,8 @@ def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingB
     return img
 
 
-def filename_to_normalized_rgb(filename: str, wh):
-    img = Image.open(filename).resize(wh)
+def filename_to_normalized_rgb(filename: str, wh, sampling=Image.BILINEAR):
+    img = Image.open(filename).resize(wh, resample=sampling)
     if img.mode != 'RGB':
         img = img.convert('RGB')
     img = np.asarray(img)
