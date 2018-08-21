@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class AssertSize(nn.Module):
     """Assert that the input has the specified size.
 
@@ -32,8 +33,10 @@ class AssertSize(nn.Module):
             raise RuntimeError(f"expected rank {len(self.size)} but got a tensor of rank {len(size)}")
 
         for expected, given in zip(self.size, size):
-            if expected != None and expected != given:
+            if (expected is not None) and (expected is not given):
                 raise RuntimeError(f"expected size {self.size} but got a tensor of size {size}")
+
+        return x
 
 
 class Flatten(nn.Module):
