@@ -3,6 +3,7 @@ import torch
 import urllib
 import time
 import sys
+from types import SimpleNamespace
 
 
 def _reporthook(count, block_size, total_size):
@@ -79,22 +80,28 @@ class Saver(object):
 
         Example::
 
+            model = {
+                'net':net,
+                'opt':opt,
+                'scheduler':cosine_annealing,
+                'lr': 0.01
+            }
+
             saver = Saver()
-            saver.save(
-                {
-                    'net':net,
-                    'opt':opt,
-                    'scheduler':cosine_annealing
-                },
-                epoch=3,
-                score=val_acc
-            )
+            saver.save(model, epoch=3, score=val_acc)
+            saver.save(model, epoch=4, score=val_acc)
+            meta = saver.load_latest(model)
+            print(meta.lr)
+            print(meta.epoch)
 
         Args:
             dic (dict): the values are objects with `state_dict` and `load_state_dict`
             epoch (int): number of epochs completed
             score (float, optional): Defaults to None
         """
+
+        if isinstance(dic, SimpleNamespace):
+            dic = dic.__dict__
 
         if score != None:
             if (self.best_score is None) or self.best_score < score:
@@ -106,12 +113,15 @@ class Saver(object):
 
         new_dic = {}
         for key, value in dic.items():
-            new_dic[key] = value.state_dict()
+            if has_attr(value, 'state_dict'):
+                new_dic[key] = value.state_dict()
+            else:
+                new_dic[key] = value
         new_dic['epoch'] = epoch
 
         torch.save(new_dic, self.path_for_epoch(epoch))
 
-    def load(self, dic: dict, epoch: int):
+    def load(self, dic: dict, epoch: int) -> SimpleNamespace:
         """Load the model.
 
         It is recommended to use `load_latest` or `load_best` instead.
@@ -127,10 +137,16 @@ class Saver(object):
 
         assert epoch == states['epoch']
 
+        dic = {}
         for key, value in dic.items():
-            value.load_state_dict(states[key])
+            if hasattr(value, 'load_state_dict'):
+                value.load_state_dict(states[key])
+            else:
+                dic[key] = states[key]
 
-    def load_latest(self, dic: dict) -> int:
+        return SimpleNamespace(**dic)
+
+    def load_latest(self, dic: dict) -> SimpleNamespace:
         """Load the latest model.
 
         Args:
@@ -147,22 +163,20 @@ class Saver(object):
         latest: str = max(files)
         assert latest.startswith('epoch_') and latest.endswith('.pth')
         epoch = int(latest[6:10])
-        self.load(dic, epoch)
 
-        return epoch
+        return self.load(dic, epoch)
 
-    def load_best(self, dic: dict) -> bool:
+    def load_best(self, dic: dict) -> SimpleNamespace:
         """Load the best model.
 
         Args:
             dic (dict): see save()
 
         Return:
-            bool: True if loaded successfully
+            SimpleNamespace
         """
 
         if self.best_epoch is not None:
-            self.load(dic, self.best_epoch)
-            return True
+            return self.load(dic, self.best_epoch)
 
-        return False
+        return None
