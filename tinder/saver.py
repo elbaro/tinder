@@ -113,7 +113,7 @@ class Saver(object):
 
         new_dic = {}
         for key, value in dic.items():
-            if has_attr(value, 'state_dict'):
+            if hasattr(value, 'state_dict'):
                 new_dic[key] = value.state_dict()
             else:
                 new_dic[key] = value
@@ -121,32 +121,42 @@ class Saver(object):
 
         torch.save(new_dic, self.path_for_epoch(epoch))
 
-    def load(self, dic: dict, epoch: int) -> SimpleNamespace:
+    def load(self, model_dict: dict, epoch: int) -> bool:
         """Load the model.
 
         It is recommended to use `load_latest` or `load_best` instead.
 
         Args:
-            dic (dict): see save()
+            model_dict (dict): see save()
             epoch (int): epoch to load
         """
 
+        if isinstance(model_dict, SimpleNamespace):
+            model_dict = model_dict.__dict__
+
+        p = self.path_for_epoch(epoch)
+        if not os.path.exists(p):
+            print('load failed: ', p)
+            return False
+
         states = torch.load(
-            self.path_for_epoch(epoch),
+            p,
             map_location=lambda storage, loc: storage)
 
         assert epoch == states['epoch']
 
-        dic = {}
-        for key, value in dic.items():
-            if hasattr(value, 'load_state_dict'):
-                value.load_state_dict(states[key])
+        for key, value in model_dict.items():
+            if key in states:
+                if hasattr(value, 'load_state_dict'):
+                    value.load_state_dict(states[key])
+                else:
+                    model_dict[key] = states[key]
             else:
-                dic[key] = states[key]
+                print('missing key in the checkpoint: ', key)
 
-        return SimpleNamespace(**dic)
+        return True
 
-    def load_latest(self, dic: dict) -> SimpleNamespace:
+    def load_latest(self, dic: dict) -> bool:
         """Load the latest model.
 
         Args:
@@ -166,7 +176,7 @@ class Saver(object):
 
         return self.load(dic, epoch)
 
-    def load_best(self, dic: dict) -> SimpleNamespace:
+    def load_best(self, dic: dict) -> bool:
         """Load the best model.
 
         Args:
@@ -179,4 +189,4 @@ class Saver(object):
         if self.best_epoch is not None:
             return self.load(dic, self.best_epoch)
 
-        return None
+        return False
