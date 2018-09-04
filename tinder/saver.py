@@ -136,8 +136,10 @@ class Saver(object):
 
         p = self.path_for_epoch(epoch)
         if not os.path.exists(p):
-            print('load failed: ', p)
+            print("[tinder] weight doesn't exist: ", p)
             return False
+
+        print('[tinder] loading weights: ', p)
 
         states = torch.load(
             p,
@@ -168,7 +170,8 @@ class Saver(object):
 
         files = list(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         if len(files) == 0:
-            return -1
+            print('[tinder] no weights found in ', self.dir_path)
+            return False
 
         latest: str = max(files)
         assert latest.startswith('epoch_') and latest.endswith('.pth')
