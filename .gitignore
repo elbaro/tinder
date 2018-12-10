@@ -1,5 +1,7 @@
 docs/_*
 
+.pytest_cache/
+
 # Created by https://www.gitignore.io/api/python,pycharm,pycharm+all
 
 ### PyCharm ###

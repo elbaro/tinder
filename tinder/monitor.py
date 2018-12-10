@@ -21,13 +21,16 @@ class Stat(object):
         self.alpha = alpha
         self.clear()
 
-    def update(self, value, count: int = 1):
+    def update(self, value, count: int = 1, is_mean=False):
         """Update stats with new samples.
 
         Args:
             value (int or float): new sample, or average of multiple samples.
             count (int): Defaults to 1. This is useful when batch size is not uniform.
         """
+
+        if is_mean:
+            value *= count
 
         self.count += count
         self.sum += value

@@ -8,8 +8,6 @@ import tinder
 
 default_cmap = plt.get_cmap('Accent', 256)
 
-tinder.bootstrap()
-
 
 def show_imgs(imgs, rows=None, cols=None, cmaps: []=None, minmax=None, imshows=None):
     """
