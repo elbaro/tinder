@@ -5,13 +5,13 @@ LONG_DESCRIPTION = """
 """
 
 setup(name='tinder',
-      version='0.1.3',
+      version='0.1.4',
       description='Pytorch helpers and utils',
       long_description=LONG_DESCRIPTION,
       classifiers=[
           'Operating System :: OS Independent',
           'Intended Audience :: Science/Research',
-          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
           'Topic :: Scientific/Engineering'
       ],
       url='http://github.com/elbaro/tinder',
@@ -22,9 +22,12 @@ setup(name='tinder',
       keywords=['tinder', 'pytorch', 'torch'],
       zip_safe=False,
       install_requires=[
-          'colorama',
           'backtrace',
+          'colorama',
+          'matplotlib',
           'numpy',
+          'pillow',
+          'torch',
           'tqdm',
       ],
       dependency_links = [
