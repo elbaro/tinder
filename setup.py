@@ -22,7 +22,7 @@ setup(name='tinder',
       keywords=['tinder', 'pytorch', 'torch'],
       zip_safe=False,
       install_requires=[
-          'backtrace',
+          'backtrace@git+https://github.com/nir0s/backtrace.git#egg=backtrace',
           'colorama',
           'matplotlib',
           'numpy',
@@ -30,7 +30,4 @@ setup(name='tinder',
           'torch',
           'tqdm',
       ],
-      dependency_links = [
-          "git+https://github.com/nir0s/backtrace.git#egg=backtrace"
-        ]
-      )
+)
