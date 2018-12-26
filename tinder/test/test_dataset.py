@@ -7,8 +7,8 @@ import tinder
 
 
 def test_balanced():
-    ds=[10,20,20,30,30,30,40,40,40,40,50,50,50,50,50]
-    loader = tinder.BalancedDataLoader(ds, ds, batch_size=3)
+    ds = [10, 20, 20, 30, 30, 30, 40, 40, 40, 40, 50, 50, 50, 50, 50]
+    loader = tinder.dataset.BalancedDataLoader(ds, ds, batch_size=3)
     cnt = Counter()
     for i in range(100):
         for batch in loader:
@@ -22,8 +22,8 @@ def test_balanced():
 def transform(x):
     return -x
 
-def test_streaming_dataloader():
 
+def test_streaming_dataloader():
 
     source = mp.Manager().Queue()
     source.put(1)
@@ -38,6 +38,5 @@ def test_streaming_dataloader():
         cnt += len(batch)
         if cnt == 5:
             break
-    
-    loader.close()
 
+    loader.close()
