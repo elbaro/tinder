@@ -18,7 +18,6 @@ Tinder - extra utils for PyTorch
 
     image
     nn
-    layers
     dataset
     metrics
 

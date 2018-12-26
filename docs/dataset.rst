@@ -4,12 +4,5 @@ Dataset
 
 .. currentmodule:: tinder.dataset
 
-.. autoclass:: StreamingDataloader
+.. automodule:: tinder.dataset
     :members:
-
-.. autofunction:: DataLoaderIterator
-
-.. autofunction:: BalancedDataLoader
-
-.. autofunction:: hash_group
-

@@ -4,7 +4,5 @@ Image
 
 .. currentmodule:: tinder.image
 
-.. autoclass:: BoundingBox
+.. automodule:: tinder.image
     :members:
-
-.. autofunction:: crop

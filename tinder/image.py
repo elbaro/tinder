@@ -85,15 +85,6 @@ def crop(img: np.ndarray, crop: BoundingBox, boxes_to_transform: List['BoundingB
     return img
 
 
-def filename_to_normalized_rgb(filename: str, wh, sampling=Image.BILINEAR):
-    img = Image.open(filename).resize(wh, resample=sampling)
-    if img.mode != 'RGB':
-        img = img.convert('RGB')
-    img = np.asarray(img)
-    img = np.transpose(img, axes=(2, 0, 1)).astype(np.float32) / 255.0   # [C,H,W], 0~1
-    return img
-
-
 def fft2d_log(img: np.ndarray):
     from scipy import fftpack
     if len(img.shape) == 3:

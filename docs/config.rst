@@ -4,9 +4,5 @@ Config
 
 .. currentmodule:: tinder.config
 
-.. autoclass:: Placeholder
+.. automodule:: tinder.config
     :members:
-
-.. autofunction:: bootstrap
-
-.. autofunction:: override

@@ -2,6 +2,18 @@
 Queue
 ===================================
 
+These queues require additional dependencies.
+
+========  ======
+Queue     Python Dependency
+========  ======
+Redis     redis
+RabbitMQ   pika
+Kafka     confluent_kafka
+Nats      nats
+========  ======
+
+
 .. currentmodule:: tinder.queue
 
 .. autoclass:: NatsConsumer

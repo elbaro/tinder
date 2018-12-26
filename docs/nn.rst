@@ -2,16 +2,9 @@
 nn
 ===================================
 
+Layers and functinal methods for PyTorch
+
 .. currentmodule:: tinder.nn
 
-.. autoclass:: WeightScale
+.. automodule:: tinder.nn
     :members:
-
-.. autoclass:: PixelwiseNormalize
-    :members:
-
-.. autoclass:: MinibatchStddev
-    :members:
-
-.. autofunction:: loss_wgan_gp
-
