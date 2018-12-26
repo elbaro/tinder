@@ -4,6 +4,7 @@ Tinder
 A library complement to PyTorch.
 """
 
+from . import nn
 from . import image
 from . import config
 from . import optimizer
