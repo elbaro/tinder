@@ -1,11 +1,11 @@
 asyncio-nats-streaming
 colorama
 confluent_kafka
--e git+https://github.com/nir0s/backtrace.git#egg=backtrace
 matplotlib
 numpy
 pika
 pillow
 redis
 torch
+torchvision
 tqdm

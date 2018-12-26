@@ -28,7 +28,7 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
     """
 
     if trace:
-        import backtrace
+        from .vendor import backtrace
         backtrace.hook(align=True)
     if pdb_on_error:
         old_hook = sys.excepthook

@@ -153,3 +153,27 @@ def BalancedDataLoader(dataset, classes, **kwargs):
     )
 
     return torch.utils.data.DataLoader(dataset, **kwargs)
+
+
+def random_split(dataset, ratio, seed=None):
+    """Split a given dataset into several ones, e.g. train/val/test.
+
+    The source of randomness comes from `torch`, which can be fixed by `torch.manual_seed`.
+
+    Arguments:
+        dataset {[type]} -- pytorch dataset object
+
+    Keyword Arguments:
+        ratio {list} -- A list representing the first n-1 portions.  (example: {[0.7,0.2]} for 70% / 20% / 10%)
+    """
+
+    if seed is not None:
+        torch.manual_seed(seed)
+
+    n = len(dataset)
+    lengths = []
+    for r in ratio:
+        lengths.append(int(n*r))
+
+    lengths.append(n - sum(lengths))
+    return torch.utils.data.random_split(dataset, lengths)

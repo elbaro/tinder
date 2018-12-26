@@ -1,9 +1,41 @@
-import redis
-import pika
+try:
+    import redis
+except ImportError:
+    _has_redis = False
+else:
+    _has_redis = True
+
+try:
+    from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
+    from pika.adapters import AsyncioConnection
+except ImportError:
+    _has_pika = False
+else:
+    _has_pika = True
+
+try:
+    import asyncio
+    from nats.aio.client import Client as NATS
+    from stan.aio.client import Client as STAN
+    import stan
+    import stan.pb.protocol_pb2 as protocol
+except ImportError:
+    _has_nats = False
+else:
+    _has_nats = True
+
+
+try:
+    from confluent_kafka import Producer, Consumer
+except ImportError:
+    _has_kafka = False
+else:
+    _has_kafka = True
+
+
 import time
 import atexit
 from typing import List, Iterator, Tuple
-import asyncio
 from threading import Thread
 import multiprocessing as mp
 import multiprocessing.managers
@@ -11,9 +43,6 @@ from multiprocessing import Queue, Process
 import queue
 from .batch import pop
 from .utils import WaitGroup
-
-from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
-from pika.adapters import AsyncioConnection
 
 
 class RedisQueue(object):
@@ -35,6 +64,9 @@ class RedisQueue(object):
     """
 
     def __init__(self, queue: str, unique_history: bool = False, soft_capacity=None, redis_client=None):
+        if not _has_redis:
+            raise RuntimeError('Please install the python module: redis')
+
         self.queue = queue
         self.unique_history = unique_history
         if self.unique_history:
@@ -144,6 +176,9 @@ class RabbitConsumer(object):
     """
 
     def __init__(self, queue: str, prefetch: int, host: str = 'localhost', port: int = 5672):
+        if not _has_pika:
+            raise RuntimeError('Please install the python module: pika')
+
         self.host = host
         self.port = port
         self.queue = queue
@@ -304,6 +339,9 @@ class RabbitProducer(object):
 
     def __init__(self, queue: str, host: str = 'localhost', port: int = 5672,
                  channel: BlockingChannel = None):
+        if not _has_pika:
+            raise RuntimeError('Please install the python module: pika')
+
         if channel is None:
             self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
             self.channel = self.conn.channel()
@@ -346,9 +384,6 @@ class RabbitProducer(object):
             self.conn.close()
 
 
-from confluent_kafka import Producer, Consumer
-
-
 class KafkaProducer(object):
     """
     Args:
@@ -357,6 +392,8 @@ class KafkaProducer(object):
     """
 
     def __init__(self, topic: str, host: str = 'localhost'):
+        if not _has_kafka:
+            raise RuntimeError('Please install the python module: confluent_kafka')
 
         self.topic = topic
         self.producer = Producer({
@@ -389,6 +426,9 @@ class KafkaConsumer(object):
             consumer_id (str): Kafka remembers the last message read by consumer_id.
             host (str, optional): Defaults to 'localhost'. [description]
         """
+
+        if not _has_kafka:
+            raise RuntimeError('Please install the python module: confluent_kafka')
 
         self.topic = topic
         self.host = host
@@ -435,13 +475,6 @@ class KafkaConsumer(object):
             raise NotImplementedError()
 
 
-import asyncio
-from nats.aio.client import Client as NATS
-from stan.aio.client import Client as STAN
-import stan
-import stan.pb.protocol_pb2 as protocol
-
-
 class NatsConsumer(object):
     """A Nats Streaming consumer using durable queues.
 
@@ -458,6 +491,9 @@ class NatsConsumer(object):
     """
 
     def __init__(self, subject: str, max_inflight: int, client_name: str, durable_name: str = 'durable', cluster_id: str = 'test-cluster'):
+        if not _has_nats:
+            raise RuntimeError('Please install the python module: nats')
+
         self.subject = subject
         self.max_inflight = max_inflight
         self.durable_name = durable_name
@@ -529,6 +565,9 @@ class NatsProducer(object):
     """
 
     def __init__(self, subject: str, client_name: str, cluster_id: str = 'test-cluster'):
+        if not _has_nats:
+            raise RuntimeError('Please install the python module: nats')
+
         self.wg = WaitGroup()
         self.startup_lock = mp.Lock()
 

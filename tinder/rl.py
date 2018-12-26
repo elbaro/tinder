@@ -25,7 +25,7 @@ class ReplayMemory(object):
 
 
 # Copied from OpenAI Baseline
-class SumTree:
+class SumTree(object):
     write = 0
 
     def __init__(self, capacity):

@@ -1,4 +1,5 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+
 
 LONG_DESCRIPTION = """
 **tinder** provides extra layers and helpers for Pytorch.
@@ -18,16 +19,16 @@ setup(name='tinder',
       author='elbaro',
       author_email='elbaro@users.noreply.github.com',
       license='MIT',
-      packages=['tinder'],
+      packages=find_packages(),
       keywords=['tinder', 'pytorch', 'torch'],
       zip_safe=False,
       install_requires=[
-          'backtrace@git+https://github.com/nir0s/backtrace.git#egg=backtrace',
           'colorama',
           'matplotlib',
           'numpy',
           'pillow',
           'torch',
+          'torchvision',
           'tqdm',
       ],
-)
+      )

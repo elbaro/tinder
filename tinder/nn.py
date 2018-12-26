@@ -1,5 +1,94 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from typing import Tuple
+
+
+class AssertSize(nn.Module):
+    """Assert that the input has the specified size.
+
+    Example::
+
+        net = nn.Sequential(
+            tinder.nn.AssertSize(None, 3, 224, 224),
+            nn.Conv2d(3, 64, kernel_size=1, stride=2),
+            nn.Conv2d(64, 128, kernel_size=1, stride=2),
+            tinder.nn.AssertSize(None, 128, 64, 64),
+        )
+
+    Args:
+        size (iterable): an iterable of dimensions. Each dimension is one of -1, None, or positive integer.
+
+    """
+
+    def __init__(self, *size):
+        super().__init__()
+        self.size = [s if s != -1 else None for s in size]
+
+    def __repr__(self):
+        return f'AssertSize({self.size})'
+
+    def forward(self, x):
+        """
+        """
+        size = x.size()
+        if len(self.size) != len(size):
+            raise RuntimeError(f"expected rank {len(self.size)} but got a tensor of rank {len(size)}")
+
+        for expected, given in zip(self.size, size):
+            if (expected is not None) and (expected is not given):
+                raise RuntimeError(f"expected size {self.size} but got a tensor of size {size}")
+
+        return x
+
+
+class Flatten(nn.Module):
+    """A layer that flattens the input.
+
+    Example::
+
+        net = nn.Sequential(
+            nn.Conv2d(..),
+            nn.BatchNorm2d(..),
+            nn.ReLU(),
+
+            nn.Conv2d(..),
+            nn.BatchNorm2d(..),
+            nn.ReLU(),
+
+            tinder.nn.Flatten(),
+            nn.Linear(3*3*512, 1024),
+        )
+
+    Args:
+        x: input tensor
+    """
+
+    def forward(self, x):
+        return x.view(x.size(0), -1)
+
+
+class View(nn.Module):
+    """nn.Module version of tensor.view().
+
+    Example::
+
+        layer = tinder.nn.View(3, -1, 256)
+        x = layer(x)
+
+    The batch dimension is implicit.
+    The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.
+
+    Args:
+        size_without_batch_dim (iterable): each dimension is one of -1, None, or positive.
+    """
+
+    def __init__(self, *size_without_batch_dim):
+        super().__init__()
+        self.size = [s if s != None else -1 for s in size_without_batch_dim]
+
+    def forward(self, x):
+        return x.view(x.size(0), *self.size)
 
 
 class WeightScale(nn.Module):
@@ -22,7 +111,7 @@ class WeightScale(nn.Module):
     Example::
 
         conv = nn.Conv2d(3, 64, kernel_size=3, padding=1)
-        ws = WeightScale(conv)
+        ws = tinder.nn.WeightScale(conv)
         nn.Sequential(
             conv,
             ws
@@ -144,3 +233,40 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
 
     norms = grads.view(batch_size, -1).norm(2, dim=1)
     return ((norms - 1) ** 2).mean()
+
+
+def odin(network: nn.Module, x: torch.Tensor, threshold, T=1000, epsilon=0.0012) -> Tuple[bool, torch.Tensor]:
+    """Decide if we should reject the prediction for the given example x using ODIN.
+
+    Example::
+
+        is_reject, max_p = tinder.nn.odin(resnet, imgs, threshold=0.003)
+        # assert (is_reject == (max_p<0.003)).all()
+
+    Arguments:
+        network {nn.Module} -- A function returning logits
+        x {torch.Tensor} -- input of [B,*]
+        threshold {[type]} -- [description]
+
+    Keyword Arguments:
+        T {int} -- A parameter for temperature scailing (default: {1000})
+        epsilon {float} -- A parameter for noisyness (default: {0.0012})
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor] -- (is_reject of shape [B], max_p of shape [B])
+    """
+
+    x.requires_grad = True
+
+    logits = network(x) / T
+    predict = logits.argmax(dim=1)
+    negative_log_softmax = F.cross_entropy(input=logits, target=predict, reduction='sum')
+    negative_grad = torch.autograd.grad(outputs=negative_log_softmax, inputs=x)[0]
+
+    with torch.no_grad():
+        x_noise = x - epsilon * negative_grad.sign()
+        max_p, _idx = F.softmax(network(x_noise)/T, dim=1).max(dim=1)
+        reject = max_p < threshold
+
+    x.requires_grad = False
+    return reject, max_p

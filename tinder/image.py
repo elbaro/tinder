@@ -1,6 +1,11 @@
+import torch
+import torchvision
 import numpy as np
 from typing import NamedTuple, List
 from PIL import Image
+
+if 'post' not in Image.PILLOW_VERSION:
+    print('[tinder warning] You have /pillow/ instead of /pillow-simd/.')
 
 
 class BoundingBox(NamedTuple):
@@ -147,3 +152,14 @@ def pggan_bbox_from_landmarks(wh, e0e1m0m1s):
         ret.append((crop, oversize))
 
     return ret
+
+
+def load_rgb(path, width, height, mean=[0.485, 0.456, 0.406],
+             std=[0.229, 0.224, 0.225]) -> torch.Tensor:
+    img = Image.open(path).resize((width, height))
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+    img = np.asarray(img)  # [H,W,3]
+    tensor = torch.from_numpy(img).permute(2, 0, 1).float()/255.0  # [3,H,W], 0~1
+    tensor = torchvision.transforms.functional.normalize(tensor, mean, std)  # about -1~1
+    return tensor
