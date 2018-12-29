@@ -6,7 +6,7 @@
 
 Pytorch library.
 
-See ![Documentation](https://elbaro.github.io/tinder)
+See [Documentation](https://elbaro.github.io/tinder)
 
 ## Usage
 
