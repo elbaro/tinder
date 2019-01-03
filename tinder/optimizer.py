@@ -31,6 +31,9 @@ class WarmRestartLR(object):
 
         self.scheduler.step()
 
+    def get_lr(self):
+        return self.scheduler.get_lr()
+
 
 def copy_opt_state(old: torch.optim.Optimizer, new: torch.optim.Optimizer):
     """Copy one optimizer's state to another.
