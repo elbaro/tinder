@@ -4,6 +4,11 @@ import torch.nn.functional as F
 from typing import Tuple
 
 
+class Identity(nn.Module):
+    def forward(self, x):
+        return x
+
+
 class AssertSize(nn.Module):
     """Assert that the input has the specified size.
 
