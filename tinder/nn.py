@@ -47,6 +47,10 @@ class AssertSize(nn.Module):
         return x
 
 
+def flatten(x):
+    return x.view(x.size(0), -1)
+
+
 class Flatten(nn.Module):
     """A layer that flattens the input.
 
@@ -70,7 +74,7 @@ class Flatten(nn.Module):
     """
 
     def forward(self, x):
-        return x.view(x.size(0), -1)
+        return flatten(x)
 
 
 class View(nn.Module):
@@ -201,6 +205,20 @@ class MinibatchStddev(nn.Module):
         return x
 
 
+def cross_entropy(input, target, *args, **kwargs):
+    # If target label is out of range, the cross entropy is undefined.
+    # This is to prevent crashes.
+    target = target.clamp(0, input.shape[1]-1)
+    # target = torch.where(
+    #     target >= 0 and target < input.shape[1],
+    #     target,
+    #     ?
+    # )
+    return torch.nn.functional.cross_entropy(
+        input, target, *args, **kwargs
+    )
+
+
 def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     """Gradient Penalty for Wasserstein GAN.
 
@@ -275,3 +293,11 @@ def odin(network: nn.Module, x: torch.Tensor, threshold, T=1000, epsilon=0.0012)
 
     x.requires_grad = False
     return reject, max_p
+
+
+def count_parameters(model: nn.Module):
+    return sum(p.numel() for p in model.parameters())
+
+
+def count_trainable_parameters(model: nn.Module):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
