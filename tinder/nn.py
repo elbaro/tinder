@@ -4,6 +4,11 @@ import torch.nn.functional as F
 from typing import Tuple
 
 
+def freeze(module):
+    for param in module.parameters():
+        param.requires_grad = False
+
+
 class Identity(nn.Module):
     def forward(self, x):
         return x
