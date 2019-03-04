@@ -10,6 +10,9 @@ def freeze(module):
 
 
 class Identity(nn.Module):
+    def __init__(self, *_args, **_kwargs):
+        super().__init__()
+
     def forward(self, x):
         return x
 
