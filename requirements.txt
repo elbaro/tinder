@@ -4,7 +4,7 @@ confluent_kafka
 matplotlib
 numpy
 pika
-pillow
+pillow-simd
 redis
 torch
 torchvision
