@@ -26,9 +26,11 @@ def assert_download(weight_url, weight_dest):
             print('downloading weight:')
             print('    ' + weight_url)
             print('    ' + weight_dest)
-            urllib.request.urlretrieve(weight_url, weight_dest, reporthook=_reporthook)
+            urllib.request.urlretrieve(
+                weight_url, weight_dest, reporthook=_reporthook)
         else:
-            raise NotImplementedError("please specify url to download in your model")
+            raise NotImplementedError(
+                "please specify url to download in your model")
 
 
 class Saver(object):
@@ -72,7 +74,7 @@ class Saver(object):
         return self.dir_path + '/' + 'epoch_%04d.pth' % epoch
 
     # ex. ~/imagenet/weights/alexnet/epoch_0001.pth
-    def save(self, dic: dict, epoch: int, score: float=None):
+    def save(self, dic: dict, epoch: int, score: float = None):
         """Save the model.
 
         `score` is used to choose the best model.
@@ -141,9 +143,7 @@ class Saver(object):
 
         print('[tinder] loading weights: ', p)
 
-        states = torch.load(
-            p,
-            map_location=lambda storage, loc: storage)
+        states = torch.load(p, map_location=lambda storage, loc: storage)
 
         assert epoch == states['epoch']
 
@@ -168,7 +168,8 @@ class Saver(object):
             int: the epoch of the loaded model. -1 if no model exists.
         """
 
-        files = list(filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
+        files = list(
+            filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
         if len(files) == 0:
             print('[tinder] no weights found in ', self.dir_path)
             return False
