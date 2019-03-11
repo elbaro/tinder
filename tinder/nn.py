@@ -39,18 +39,22 @@ class AssertSize(nn.Module):
         self.size = [s if s != -1 else None for s in size]
 
     def __repr__(self):
-        return f'AssertSize({self.size})'
+        return f"AssertSize({self.size})"
 
     def forward(self, x):
         """
         """
         size = x.size()
         if len(self.size) != len(size):
-            raise RuntimeError(f"expected rank {len(self.size)} but got a tensor of rank {len(size)}")
+            raise RuntimeError(
+                f"expected rank {len(self.size)} but got a tensor of rank {len(size)}"
+            )
 
         for expected, given in zip(self.size, size):
             if (expected is not None) and (expected is not given):
-                raise RuntimeError(f"expected size {self.size} but got a tensor of size {size}")
+                raise RuntimeError(
+                    f"expected size {self.size} but got a tensor of size {size}"
+                )
 
         return x
 
@@ -207,7 +211,11 @@ class MinibatchStddev(nn.Module):
             (N, C+1, H, W): The last channel dimension is stddev.
         """
 
-        std = ((x - x.mean(dim=0, keepdim=True)).pow(2).mean(dim=0, keepdim=True) + 1e-8).sqrt().mean()
+        std = (
+            ((x - x.mean(dim=0, keepdim=True)).pow(2).mean(dim=0, keepdim=True) + 1e-8)
+            .sqrt()
+            .mean()
+        )
         scalar = std.expand(x.size(0), 1, x.size(2), x.size(3))  # [N,1,H,W]
         x = torch.cat([x, scalar], dim=1)
         return x
@@ -216,15 +224,13 @@ class MinibatchStddev(nn.Module):
 def cross_entropy(input, target, *args, **kwargs):
     # If target label is out of range, the cross entropy is undefined.
     # This is to prevent crashes.
-    target = target.clamp(0, input.shape[1]-1)
+    target = target.clamp(0, input.shape[1] - 1)
     # target = torch.where(
     #     target >= 0 and target < input.shape[1],
     #     target,
     #     ?
     # )
-    return torch.nn.functional.cross_entropy(
-        input, target, *args, **kwargs
-    )
+    return torch.nn.functional.cross_entropy(input, target, *args, **kwargs)
 
 
 def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
@@ -257,16 +263,21 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     x_hat = (e * real + (1 - e) * fake).detach().requires_grad_(True)
     scores = D(x_hat)
 
-    grads = torch.autograd.grad(scores, x_hat,
-                                grad_outputs=torch.ones_like(scores),
-                                retain_graph=True,
-                                create_graph=True)[0]
+    grads = torch.autograd.grad(
+        scores,
+        x_hat,
+        grad_outputs=torch.ones_like(scores),
+        retain_graph=True,
+        create_graph=True,
+    )[0]
 
     norms = grads.view(batch_size, -1).norm(2, dim=1)
     return ((norms - 1) ** 2).mean()
 
 
-def odin(network: nn.Module, x: torch.Tensor, threshold, T=1000, epsilon=0.0012) -> Tuple[bool, torch.Tensor]:
+def odin(
+    network: nn.Module, x: torch.Tensor, threshold, T=1000, epsilon=0.0012
+) -> Tuple[bool, torch.Tensor]:
     """Decide if we should reject the prediction for the given example x using ODIN.
 
     Example::
@@ -291,12 +302,14 @@ def odin(network: nn.Module, x: torch.Tensor, threshold, T=1000, epsilon=0.0012)
 
     logits = network(x) / T
     predict = logits.argmax(dim=1)
-    negative_log_softmax = F.cross_entropy(input=logits, target=predict, reduction='sum')
+    negative_log_softmax = F.cross_entropy(
+        input=logits, target=predict, reduction="sum"
+    )
     negative_grad = torch.autograd.grad(outputs=negative_log_softmax, inputs=x)[0]
 
     with torch.no_grad():
         x_noise = x - epsilon * negative_grad.sign()
-        max_p, _idx = F.softmax(network(x_noise)/T, dim=1).max(dim=1)
+        max_p, _idx = F.softmax(network(x_noise) / T, dim=1).max(dim=1)
         reject = max_p < threshold
 
     x.requires_grad = False

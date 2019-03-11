@@ -4,7 +4,7 @@ import queue
 def pop(q, max_batch_size: int):
     assert max_batch_size > 0
     batch = [q.get(block=True)]
-    for i in range(max_batch_size-1):
+    for i in range(max_batch_size - 1):
         try:
             msg = q.get_nowait()
             batch.append(msg)
@@ -26,7 +26,7 @@ def pop_with_ack(q, max_batch_size: int):
 
     assert max_batch_size > 0
     batch = [q.get(block=True)]
-    for i in range(max_batch_size-1):
+    for i in range(max_batch_size - 1):
         try:
             msg = q.get_nowait()
             batch.append(msg)
@@ -51,7 +51,7 @@ class _batch_known_len(object):
         self.iterable = iterable
         self.batch_size = batch_size
         self.total = total
-        self.num_batch = ((total-1) // self.batch_size) + 1
+        self.num_batch = ((total - 1) // self.batch_size) + 1
 
     def __len__(self):
         return self.num_batch
@@ -59,11 +59,11 @@ class _batch_known_len(object):
     def __iter__(self):
         source = iter(self.iterable)
 
-        for i in range(self.num_batch-1):
+        for i in range(self.num_batch - 1):
             chunk = [val for _, val in zip(range(self.batch_size), source)]
             yield chunk
 
-        batch_size = self.total - (self.batch_size*(self.num_batch-1))
+        batch_size = self.total - (self.batch_size * (self.num_batch - 1))
         chunk = [val for _, val in zip(range(batch_size), source)]
         yield chunk
 
@@ -115,7 +115,7 @@ def iter_from_iter(iterable, batch_size, drop_last=False, total=None):
         total (int, optional): if None, it tries to use `__len()__` of iterable.
 
     """
-    if total == None and hasattr(iterable, '__len__'):
+    if total == None and hasattr(iterable, "__len__"):
         total = len(iterable)
 
     if total == None:

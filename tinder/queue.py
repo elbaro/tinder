@@ -24,14 +24,12 @@ except ImportError:
 else:
     _has_nats = True
 
-
 try:
     from confluent_kafka import Producer, Consumer
 except ImportError:
     _has_kafka = False
 else:
     _has_kafka = True
-
 
 import time
 import atexit
@@ -63,16 +61,24 @@ class RedisQueue(object):
             redis_client: if not provided, the default one is created.
     """
 
-    def __init__(self, queue: str, unique_history: bool = False, soft_capacity=None, redis_client=None):
+    def __init__(
+        self,
+        queue: str,
+        unique_history: bool = False,
+        soft_capacity=None,
+        redis_client=None,
+    ):
         if not _has_redis:
-            raise RuntimeError('Please install the python module: redis')
+            raise RuntimeError("Please install the python module: redis")
 
         self.queue = queue
         self.unique_history = unique_history
         if self.unique_history:
-            self.history_queue = self.queue + '_all'
+            self.history_queue = self.queue + "_all"
         if redis_client is None:
-            redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+            redis_client = redis.StrictRedis(
+                host="localhost", port=6379, db=0, decode_responses=True
+            )
         self.soft_capacity = soft_capacity
         self.cooldown = 0.1
         self.client = redis_client
@@ -175,9 +181,11 @@ class RabbitConsumer(object):
 
     """
 
-    def __init__(self, queue: str, prefetch: int, host: str = 'localhost', port: int = 5672):
+    def __init__(
+        self, queue: str, prefetch: int, host: str = "localhost", port: int = 5672
+    ):
         if not _has_pika:
-            raise RuntimeError('Please install the python module: pika')
+            raise RuntimeError("Please install the python module: pika")
 
         self.host = host
         self.port = port
@@ -209,8 +217,11 @@ class RabbitConsumer(object):
     def start_loop(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        self.conn = AsyncioConnection(pika.ConnectionParameters(host=self.host, port=self.port, ),
-                                      self.on_connect, custom_ioloop=loop)
+        self.conn = AsyncioConnection(
+            pika.ConnectionParameters(host=self.host, port=self.port),
+            self.on_connect,
+            custom_ioloop=loop,
+        )
         self.conn.ioloop.start()  # this triggers connect -> on_connect
 
     def close(self):
@@ -257,7 +268,7 @@ class RabbitConsumer(object):
         """
 
         l = [self.buf.get(block=True)]
-        for i in range(max_batch_size-1):
+        for i in range(max_batch_size - 1):
             try:
                 l.append(self.buf.get(block=False))
             except queue.Empty:  # disable:
@@ -325,63 +336,74 @@ class RabbitConsumer(object):
         self.channel.basic_nack(ack_tag, multiple=True, requeue=requeue)
 
 
-class RabbitProducer(object):
-    """
-        A RabbitMQ consumer that provides data in batch.
+if _has_pika:
 
-        If channel is given, host and port are ignored.
-        If channel is not given, host and port are used to create a new channel.
-
-        Args:
-            channel (BlockingChannel): the channel instance with ack enabled.
-            queue (str): the name of a queue.
-    """
-
-    def __init__(self, queue: str, host: str = 'localhost', port: int = 5672,
-                 channel: BlockingChannel = None):
-        if not _has_pika:
-            raise RuntimeError('Please install the python module: pika')
-
-        if channel is None:
-            self.conn = BlockingConnection(pika.ConnectionParameters(host=host, port=port))
-            self.channel = self.conn.channel()
-        else:
-            self.conn = None
-            self.channel = channel
-
-        self.queue = queue
-        self.channel.queue_declare(queue=queue)
-
-        # make sure deliveries
-        self.channel.confirm_delivery()
-
-    def send(self, msg: str) -> bool:
+    class RabbitProducer(object):
         """
-        send the message. (sync)
+            A RabbitMQ consumer that provides data in batch.
 
+            If channel is given, host and port are ignored.
+            If channel is not given, host and port are used to create a new channel.
 
-        Args:
-            msg: a single msg(str)
-
-        Return:
-            bool: True on success
+            Args:
+                channel (BlockingChannel): the channel instance with ack enabled.
+                queue (str): the name of a queue.
         """
 
-        return self.channel.basic_publish(
-            '',
-            self.queue,
-            msg,
-            properties=pika.BasicProperties(content_type='text/plain',
-                                            delivery_mode=2),  # persistent
-            mandatory=True)
+        def __init__(
+            self,
+            queue: str,
+            host: str = "localhost",
+            port: int = 5672,
+            channel: BlockingChannel = None,
+        ):
+            if not _has_pika:
+                raise RuntimeError("Please install the python module: pika")
 
-    def close(self):
-        """
-        Close the connection.
-        After the call to this method, you cannot `send`.
-        """
-        if self.conn is not None:
-            self.conn.close()
+            if channel is None:
+                self.conn = BlockingConnection(
+                    pika.ConnectionParameters(host=host, port=port)
+                )
+                self.channel = self.conn.channel()
+            else:
+                self.conn = None
+                self.channel = channel
+
+            self.queue = queue
+            self.channel.queue_declare(queue=queue)
+
+            # make sure deliveries
+            self.channel.confirm_delivery()
+
+        def send(self, msg: str) -> bool:
+            """
+            send the message. (sync)
+
+
+            Args:
+                msg: a single msg(str)
+
+            Return:
+                bool: True on success
+            """
+
+            return self.channel.basic_publish(
+                "",
+                self.queue,
+                msg,
+                properties=pika.BasicProperties(
+                    content_type="text/plain", delivery_mode=2
+                ),  # persistent
+                mandatory=True,
+            )
+
+        def close(self):
+            """
+            Close the connection.
+            After the call to this method, you cannot `send`.
+            """
+            if self.conn is not None:
+                self.conn.close()
 
 
 class KafkaProducer(object):
@@ -391,15 +413,14 @@ class KafkaProducer(object):
         host (str, optional): Defaults to 'localhost'.
     """
 
-    def __init__(self, topic: str, host: str = 'localhost'):
+    def __init__(self, topic: str, host: str = "localhost"):
         if not _has_kafka:
-            raise RuntimeError('Please install the python module: confluent_kafka')
+            raise RuntimeError("Please install the python module: confluent_kafka")
 
         self.topic = topic
-        self.producer = Producer({
-            'bootstrap.servers': host,
-            'queue.buffering.max.messages': 10000000,  # 1e7
-        })
+        self.producer = Producer(
+            {"bootstrap.servers": host, "queue.buffering.max.messages": 10000000}  # 1e7
+        )
 
     def send(self, msg: str):
         """send a single string.
@@ -419,7 +440,9 @@ class KafkaProducer(object):
 
 
 class KafkaConsumer(object):
-    def __init__(self, topic: str, prefetch: int, consumer_id: str, host: str = 'localhost'):
+    def __init__(
+        self, topic: str, prefetch: int, consumer_id: str, host: str = "localhost"
+    ):
         """
         Args:
             topic (str): the name of a topic.
@@ -428,7 +451,7 @@ class KafkaConsumer(object):
         """
 
         if not _has_kafka:
-            raise RuntimeError('Please install the python module: confluent_kafka')
+            raise RuntimeError("Please install the python module: confluent_kafka")
 
         self.topic = topic
         self.host = host
@@ -450,13 +473,13 @@ class KafkaConsumer(object):
 
     @staticmethod
     def _drain(host, consumer_id, topic, q):
-        consumer = Consumer({
-            'bootstrap.servers': host,
-            'group.id': consumer_id,
-            'default.topic.config': {
-                'auto.offset.reset': 'smallest'
+        consumer = Consumer(
+            {
+                "bootstrap.servers": host,
+                "group.id": consumer_id,
+                "default.topic.config": {"auto.offset.reset": "smallest"},
             }
-        })
+        )
         consumer.subscribe([topic])
         while True:
             msg = consumer.poll(1.0)
@@ -466,7 +489,10 @@ class KafkaConsumer(object):
     def start_drain(self):
         if not self.running:
             self.running = True
-            self.p = Process(target=self._drain, args=(self.host, self.consumer_id, self.topic, self.q))
+            self.p = Process(
+                target=self._drain,
+                args=(self.host, self.consumer_id, self.topic, self.q),
+            )
             self.p.start()
 
     def stop_drain(self):
@@ -490,9 +516,16 @@ class NatsConsumer(object):
         cluster_id (str) : Defaults to 'test-cluster'.
     """
 
-    def __init__(self, subject: str, max_inflight: int, client_name: str, durable_name: str = 'durable', cluster_id: str = 'test-cluster'):
+    def __init__(
+        self,
+        subject: str,
+        max_inflight: int,
+        client_name: str,
+        durable_name: str = "durable",
+        cluster_id: str = "test-cluster",
+    ):
         if not _has_nats:
-            raise RuntimeError('Please install the python module: nats')
+            raise RuntimeError("Please install the python module: nats")
 
         self.subject = subject
         self.max_inflight = max_inflight
@@ -523,7 +556,15 @@ class NatsConsumer(object):
 
         self.sc = STAN()
         await self.sc.connect(self.cluster_id, self.client_name, nats=self.nc)
-        self.sub = await self.sc.subscribe(self.subject, durable_name=self.durable_name, cb=self.cb, max_inflight=self.max_inflight, start_at='first', manual_acks=True, ack_wait=30)
+        self.sub = await self.sc.subscribe(
+            self.subject,
+            durable_name=self.durable_name,
+            cb=self.cb,
+            max_inflight=self.max_inflight,
+            start_at="first",
+            manual_acks=True,
+            ack_wait=30,
+        )
 
     def ack(self, seq: int):
         self.loop.call_soon_threadsafe(self._ack, seq)
@@ -536,7 +577,10 @@ class NatsConsumer(object):
             ack = protocol.Ack()
             ack.subject = self.subject
             ack.sequence = seq
-            asyncio.ensure_future(self.sc._nc.publish(self.sub.ack_inbox, ack.SerializeToString()), loop=self.loop)
+            asyncio.ensure_future(
+                self.sc._nc.publish(self.sub.ack_inbox, ack.SerializeToString()),
+                loop=self.loop,
+            )
 
     async def _close(self):
         await self.sub.unsubscribe()
@@ -564,9 +608,11 @@ class NatsProducer(object):
         cluster_id (str) : Defaults to 'test-cluster'.
     """
 
-    def __init__(self, subject: str, client_name: str, cluster_id: str = 'test-cluster'):
+    def __init__(
+        self, subject: str, client_name: str, cluster_id: str = "test-cluster"
+    ):
         if not _has_nats:
-            raise RuntimeError('Please install the python module: nats')
+            raise RuntimeError("Please install the python module: nats")
 
         self.wg = WaitGroup()
         self.startup_lock = mp.Lock()
@@ -603,7 +649,9 @@ class NatsProducer(object):
         self.loop.call_soon_threadsafe(self._send, msg)
 
     def _send(self, msg: str):
-        asyncio.ensure_future(self.sc.publish(self.subject, msg.encode(), ack_handler=self.ack_handler))
+        asyncio.ensure_future(
+            self.sc.publish(self.subject, msg.encode(), ack_handler=self.ack_handler)
+        )
 
     async def ack_handler(self, _ack):
         self.wg.done()

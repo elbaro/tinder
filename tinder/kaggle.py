@@ -19,7 +19,7 @@ def split_csv_by_lines(csv_path, dests, p, header=True):
     assert len(dests) == len(p)
 
     with open(csv_path) as csv:
-        files = [open(dest, 'w') for dest in dests]
+        files = [open(dest, "w") for dest in dests]
 
         if header:
             header = csv.readline()

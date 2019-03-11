@@ -15,22 +15,22 @@ def _reporthook(count, block_size, total_size):
     progress_size = int(count * block_size)
     speed = int(progress_size / (1024 * duration))
     percent = int(count * block_size * 100 / total_size)
-    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
-                     (percent, progress_size / (1024 * 1024), speed, duration))
+    sys.stdout.write(
+        "\r...%d%%, %d MB, %d KB/s, %d seconds passed"
+        % (percent, progress_size / (1024 * 1024), speed, duration)
+    )
     sys.stdout.flush()
 
 
 def assert_download(weight_url, weight_dest):
     if not os.path.exists(weight_dest):
         if weight_url:
-            print('downloading weight:')
-            print('    ' + weight_url)
-            print('    ' + weight_dest)
-            urllib.request.urlretrieve(
-                weight_url, weight_dest, reporthook=_reporthook)
+            print("downloading weight:")
+            print("    " + weight_url)
+            print("    " + weight_dest)
+            urllib.request.urlretrieve(weight_url, weight_dest, reporthook=_reporthook)
         else:
-            raise NotImplementedError(
-                "please specify url to download in your model")
+            raise NotImplementedError("please specify url to download in your model")
 
 
 class Saver(object):
@@ -58,10 +58,10 @@ class Saver(object):
     def __init__(self, weight_dir, exp_name):
         self.weight_dir = weight_dir
         self.exp_name = exp_name
-        self.dir_path = weight_dir + '/' + exp_name
+        self.dir_path = weight_dir + "/" + exp_name
         os.makedirs(self.dir_path, exist_ok=True)
 
-        self.best_epoch_path = self.dir_path + '/best_epoch'
+        self.best_epoch_path = self.dir_path + "/best_epoch"
         if os.path.exists(self.best_epoch_path):
             with open(self.best_epoch_path) as f:
                 self.best_epoch = int(f.readline())
@@ -71,7 +71,7 @@ class Saver(object):
             self.best_score = None
 
     def path_for_epoch(self, epoch):
-        return self.dir_path + '/' + 'epoch_%04d.pth' % epoch
+        return self.dir_path + "/" + "epoch_%04d.pth" % epoch
 
     # ex. ~/imagenet/weights/alexnet/epoch_0001.pth
     def save(self, dic: dict, epoch: int, score: float = None):
@@ -109,17 +109,17 @@ class Saver(object):
             if (self.best_score is None) or self.best_score < score:
                 self.best_epoch = epoch
                 self.best_score = score
-                with open(self.dir_path + '/best_epoch', 'w') as f:
+                with open(self.dir_path + "/best_epoch", "w") as f:
                     print(epoch, file=f)
                     print(score, file=f)
 
         new_dic = {}
         for key, value in dic.items():
-            if hasattr(value, 'state_dict'):
+            if hasattr(value, "state_dict"):
                 new_dic[key] = value.state_dict()
             else:
                 new_dic[key] = value
-        new_dic['epoch'] = epoch
+        new_dic["epoch"] = epoch
 
         torch.save(new_dic, self.path_for_epoch(epoch))
 
@@ -141,20 +141,20 @@ class Saver(object):
             print("[tinder] weight doesn't exist: ", p)
             return False
 
-        print('[tinder] loading weights: ', p)
+        print("[tinder] loading weights: ", p)
 
         states = torch.load(p, map_location=lambda storage, loc: storage)
 
-        assert epoch == states['epoch']
+        assert epoch == states["epoch"]
 
         for key, value in model_dict.items():
             if key in states:
-                if hasattr(value, 'load_state_dict'):
+                if hasattr(value, "load_state_dict"):
                     value.load_state_dict(states[key])
                 else:
                     model_dict[key] = states[key]
             else:
-                print('missing key in the checkpoint: ', key)
+                print("missing key in the checkpoint: ", key)
 
         return True
 
@@ -168,14 +168,13 @@ class Saver(object):
             int: the epoch of the loaded model. -1 if no model exists.
         """
 
-        files = list(
-            filter(lambda x: x.endswith('.pth'), os.listdir(self.dir_path)))
+        files = list(filter(lambda x: x.endswith(".pth"), os.listdir(self.dir_path)))
         if len(files) == 0:
-            print('[tinder] no weights found in ', self.dir_path)
+            print("[tinder] no weights found in ", self.dir_path)
             return False
 
         latest: str = max(files)
-        assert latest.startswith('epoch_') and latest.endswith('.pth')
+        assert latest.startswith("epoch_") and latest.endswith(".pth")
         epoch = int(latest[6:10])
 
         return self.load(dic, epoch)

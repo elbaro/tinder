@@ -13,37 +13,33 @@ Just pipe stderr into backtrace like so:
   `python bad-program.py 2>&1 | backtrace`
 """
 
-TRACEBACK_IDENTIFIER = 'Traceback (most recent call last):\n'
+TRACEBACK_IDENTIFIER = "Traceback (most recent call last):\n"
 STYLES = {
-    'backtrace': Fore.YELLOW + '{0}',
-    'error': Fore.RED + Style.BRIGHT + '{0}',
-    'line': Fore.RED + Style.BRIGHT + '{0}',
-    'module': '{0}',
-    'context': Style.BRIGHT + Fore.GREEN + '{0}',
-    'call': Fore.YELLOW + '--> ' + Style.BRIGHT + '{0}',
+    "backtrace": Fore.YELLOW + "{0}",
+    "error": Fore.RED + Style.BRIGHT + "{0}",
+    "line": Fore.RED + Style.BRIGHT + "{0}",
+    "module": "{0}",
+    "context": Style.BRIGHT + Fore.GREEN + "{0}",
+    "call": Fore.YELLOW + "--> " + Style.BRIGHT + "{0}",
 }
 
 CONVERVATIVE_STYLES = {
-    'backtrace': Fore.YELLOW + '{0}',
-    'error': Fore.RED + Style.BRIGHT + '{0}',
-    'line': 'line ' + Fore.RED + Style.BRIGHT + '{0},',
-    'module': 'File {0},',
-    'context': 'in ' + Style.BRIGHT + Fore.GREEN + '{0}',
-    'call': Fore.YELLOW + '--> ' + Style.BRIGHT + '{0}',
+    "backtrace": Fore.YELLOW + "{0}",
+    "error": Fore.RED + Style.BRIGHT + "{0}",
+    "line": "line " + Fore.RED + Style.BRIGHT + "{0},",
+    "module": "File {0},",
+    "context": "in " + Style.BRIGHT + Fore.GREEN + "{0}",
+    "call": Fore.YELLOW + "--> " + Style.BRIGHT + "{0}",
 }
 
 
 def _flush(message):
-    sys.stderr.write(message + '\n')
+    sys.stderr.write(message + "\n")
     sys.stderr.flush()
 
 
 class _Hook(object):
-    def __init__(self,
-                 entries,
-                 align=False,
-                 strip_path=False,
-                 conservative=False):
+    def __init__(self, entries, align=False, strip_path=False, conservative=False):
         self.entries = entries
         self.align = align
         self.strip = strip_path
@@ -60,10 +56,10 @@ class _Hook(object):
         entry[1] = str(entry[1])
 
         new_entry = [
-            styles['line'].format(entry[1]) + Style.RESET_ALL,
-            styles['module'].format(entry[0]) + Style.RESET_ALL,
-            styles['context'].format(entry[2]) + Style.RESET_ALL,
-            styles['call'].format(entry[3]) + Style.RESET_ALL
+            styles["line"].format(entry[1]) + Style.RESET_ALL,
+            styles["module"].format(entry[0]) + Style.RESET_ALL,
+            styles["context"].format(entry[2]) + Style.RESET_ALL,
+            styles["call"].format(entry[3]) + Style.RESET_ALL,
         ]
         if self.conservative:
             new_entry[0], new_entry[1] = new_entry[1], new_entry[0]
@@ -81,9 +77,12 @@ class _Hook(object):
 
     @staticmethod
     def align_entry(entry, lengths):
-        return ' '.join(
-            ['{0:{1}}'.format(field, lengths[index])
-             for index, field in enumerate(entry)])
+        return " ".join(
+            [
+                "{0:{1}}".format(field, lengths[index])
+                for index, field in enumerate(entry)
+            ]
+        )
 
     def generate_backtrace(self, styles):
         """Return the (potentially) aligned, rebuit traceback
@@ -105,16 +104,18 @@ class _Hook(object):
         return aligned_backtrace
 
 
-def hook(reverse=False,
-         align=False,
-         strip_path=False,
-         enable_on_envvar_only=False,
-         on_tty=False,
-         conservative=False,
-         styles=None,
-         tb=None,
-         tpe=None,
-         value=None):
+def hook(
+    reverse=False,
+    align=False,
+    strip_path=False,
+    enable_on_envvar_only=False,
+    on_tty=False,
+    conservative=False,
+    styles=None,
+    tb=None,
+    tpe=None,
+    value=None,
+):
     """Hook the current excepthook to the backtrace.
 
     If `align` is True, all parts (line numbers, file names, etc..) will be
@@ -136,10 +137,10 @@ def hook(reverse=False,
     See https://github.com/nir0s/backtrace/blob/master/README.md for
     information on `styles`.
     """
-    if enable_on_envvar_only and 'ENABLE_BACKTRACE' not in os.environ:
+    if enable_on_envvar_only and "ENABLE_BACKTRACE" not in os.environ:
         return
 
-    isatty = getattr(sys.stderr, 'isatty', lambda: False)
+    isatty = getattr(sys.stderr, "isatty", lambda: False)
     if on_tty and not isatty():
         return
 
@@ -165,11 +166,15 @@ def hook(reverse=False,
         parser = _Hook(traceback_entries, align, strip_path, conservative)
 
         tpe = tpe if isinstance(tpe, str) else tpe.__name__
-        tb_message = styles['backtrace'].format('Traceback ({0}):'.format(
-            'Most recent call ' + ('first' if reverse else 'last'))) + \
-            Style.RESET_ALL
-        err_message = styles['error'].format(tpe + ': ' + str(value)) + \
-            Style.RESET_ALL
+        tb_message = (
+            styles["backtrace"].format(
+                "Traceback ({0}):".format(
+                    "Most recent call " + ("first" if reverse else "last")
+                )
+            )
+            + Style.RESET_ALL
+        )
+        err_message = styles["error"].format(tpe + ": " + str(value)) + Style.RESET_ALL
 
         if reverse:
             parser.reverse()
@@ -227,12 +232,12 @@ def _extract_traceback(text):
         # We're not capturing and making sure we only read lines
         # with spaces since, after the initial identifier, all traceback lines
         # contain a prefix spacing.
-        elif capture and line.startswith(' '):
+        elif capture and line.startswith(" "):
             if index % 2 == 0:
                 # Line containing a file, line and module.
-                line = line.strip().strip('\n')
-                next_line = text[index + 1].strip('\n')
-                entries.append(line + ', ' + next_line)
+                line = line.strip().strip("\n")
+                next_line = text[index + 1].strip("\n")
+                entries.append(line + ", " + next_line)
         elif capture:
             # Line containing the module call.
             entries.append(line)
@@ -246,10 +251,10 @@ def _extract_traceback(text):
     # Build the traceback structure later passed for formatting.
     for index, line in enumerate(entries[:-2]):
         # TODO: This should be done in a _parse_entry function
-        element = line.split(',')
-        element[0] = element[0].strip().lstrip('File').strip(' "')
-        element[1] = element[1].strip().lstrip('line').strip()
-        element[2] = element[2].strip().lstrip('in').strip()
+        element = line.split(",")
+        element[0] = element[0].strip().lstrip("File").strip(' "')
+        element[1] = element[1].strip().lstrip("line").strip()
+        element[2] = element[2].strip().lstrip("in").strip()
         traceback_entries.append(tuple(element))
     return traceback_entries, all_else
 
@@ -259,12 +264,13 @@ def _stdin_hook(args):
 
     if TRACEBACK_IDENTIFIER not in output:
         sys.exit(
-            'No Traceback detected. Make sure you pipe stderr to '
-            'backtrace correctly.')
+            "No Traceback detected. Make sure you pipe stderr to "
+            "backtrace correctly."
+        )
 
     tb, all_else = _extract_traceback(output)
-    sys.stdout.write(''.join(all_else))
-    tpe, value = output[-1].strip('\n').split(': ', 1)
+    sys.stdout.write("".join(all_else))
+    tpe, value = output[-1].strip("\n").split(": ", 1)
     hook(
         reverse=args.reverse,
         align=args.align,
@@ -272,50 +278,42 @@ def _stdin_hook(args):
         conservative=args.conservative,
         tpe=tpe,
         value=value,
-        tb=tb
+        tb=tb,
     )
 
 
 def _add_reverse_argument(parser):
     parser.add_argument(
-        '-r',
-        '--reverse',
-        action='store_true',
-        help='Reverse traceback entry order')
+        "-r", "--reverse", action="store_true", help="Reverse traceback entry order"
+    )
     return parser
 
 
 def _add_align_argument(parser):
     parser.add_argument(
-        '-a',
-        '--align',
-        action='store_true',
-        help='Right-align the backtrace')
+        "-a", "--align", action="store_true", help="Right-align the backtrace"
+    )
     return parser
 
 
 def _add_strip_path_argument(parser):
     parser.add_argument(
-        '-s',
-        '--strip-path',
-        action='store_true',
-        help='Strip the path to the module')
+        "-s", "--strip-path", action="store_true", help="Strip the path to the module"
+    )
     return parser
 
 
 def _add_conservative_argument(parser):
     parser.add_argument(
-        '-c',
-        '--conservative',
-        action='store_true',
-        help='Activate conservative mode')
+        "-c", "--conservative", action="store_true", help="Activate conservative mode"
+    )
     return parser
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=DESCRIPTION,
-        formatter_class=argparse.RawTextHelpFormatter)
+        description=DESCRIPTION, formatter_class=argparse.RawTextHelpFormatter
+    )
     parser = _add_reverse_argument(parser)
     parser = _add_align_argument(parser)
     parser = _add_strip_path_argument(parser)
@@ -330,5 +328,5 @@ def main():
     args.func(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

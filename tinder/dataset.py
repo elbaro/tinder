@@ -52,7 +52,9 @@ class StreamingDataloader(object):
             transform: a function that receives a string (msg) and returns any object.
         """
 
-        assert isinstance(q, mp.managers.BaseProxy) or isinstance(q, tmp.managers.BaseProxy)
+        assert isinstance(q, mp.managers.BaseProxy) or isinstance(
+            q, tmp.managers.BaseProxy
+        )
         assert batch_size > 0
         assert num_workers > 0
 
@@ -60,11 +62,13 @@ class StreamingDataloader(object):
         self.num_workers = num_workers
         self.m = tmp.Manager()
         self.source = q
-        self.sink = self.m.Queue(maxsize=batch_size*3)
+        self.sink = self.m.Queue(maxsize=batch_size * 3)
 
         self.pool = tmp.Pool(num_workers)
         for i in range(num_workers):
-            r = self.pool.apply_async(self._worker_loop, (self.source, self.sink, transform))
+            r = self.pool.apply_async(
+                self._worker_loop, (self.source, self.sink, transform)
+            )
 
     @staticmethod
     def _worker_loop(source, sink, transform):
@@ -75,7 +79,7 @@ class StreamingDataloader(object):
                 if out is not None:
                     sink.put(out, block=True)
         except Exception as e:
-            print('[exception in StreamingDataloader]')
+            print("[exception in StreamingDataloader]")
             print(e)
 
     def __iter__(self):
@@ -83,7 +87,7 @@ class StreamingDataloader(object):
 
     def __next__(self):
         batch = [self.sink.get(block=True)]
-        for i in range(self.batch_size-1):
+        for i in range(self.batch_size - 1):
             try:
                 batch.append(self.sink.get_nowait())
             except queue.Empty:
@@ -144,12 +148,10 @@ def BalancedDataLoader(dataset, classes, **kwargs):
         counter[key] = 1.0 / counter[key]
     weights = [counter[cls_] for cls_ in classes]
 
-    kwargs['shuffle'] = False
-    kwargs['batch_sampler'] = None
-    kwargs['sampler'] = torch.utils.data.sampler.WeightedRandomSampler(
-        weights=weights,
-        num_samples=len(dataset),
-        replacement=True
+    kwargs["shuffle"] = False
+    kwargs["batch_sampler"] = None
+    kwargs["sampler"] = torch.utils.data.sampler.WeightedRandomSampler(
+        weights=weights, num_samples=len(dataset), replacement=True
     )
 
     return torch.utils.data.DataLoader(dataset, **kwargs)
@@ -173,7 +175,7 @@ def random_split(dataset, ratio, seed=None):
     n = len(dataset)
     lengths = []
     for r in ratio:
-        lengths.append(int(n*r))
+        lengths.append(int(n * r))
 
     lengths.append(n - sum(lengths))
     return torch.utils.data.random_split(dataset, lengths)

@@ -5,7 +5,7 @@ from enum import Enum, auto
 from types import SimpleNamespace
 
 
-def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
+def bootstrap(*, logger_name="tinder", trace=True, pdb_on_error=True):
     """
     Setup convinient utils to run a python script for deep learning.
 
@@ -29,6 +29,7 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
 
     if trace:
         from .vendor import backtrace
+
         backtrace.hook(align=True)
     if pdb_on_error:
         old_hook = sys.excepthook
@@ -37,6 +38,7 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
             old_hook(type_, value, tb)
             if type_ != KeyboardInterrupt:
                 import pdb
+
                 pdb.post_mortem(tb)
 
         sys.excepthook = new_hook
@@ -44,10 +46,13 @@ def bootstrap(*, logger_name='tinder', trace=True, pdb_on_error=True):
     if logger_name is not None:
         import logging
         import tqdm
+
         log = logging.getLogger(logger_name)
         log.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
-            '%(asctime)s [%(filename)16s:%(lineno)3s] %(message)s', datefmt='%m월%d일 %H시%M분')
+            "%(asctime)s [%(filename)16s:%(lineno)3s] %(message)s",
+            datefmt="%m월%d일 %H시%M분",
+        )
 
         class TqdmLoggingHandler(logging.Handler):
             def emit(self, record):
@@ -120,19 +125,19 @@ def override(config):
     new = {}
 
     for token in sys.argv[1:]:
-        idx = token.find('=')
+        idx = token.find("=")
         if idx == -1:
             continue
         else:
             key = token[:idx]
-            value = token[idx + 1:]
+            value = token[idx + 1 :]
 
             if key not in config:
                 raise RuntimeError("unknown arg: " + key)
 
             default = config[key]
             if isinstance(default, bool) or default == Placeholder.BOOL:
-                value = (value == 'True')  # bool('False')==True
+                value = value == "True"  # bool('False')==True
             elif isinstance(default, int) or default == Placeholder.INT:
                 value = int(value)
             elif isinstance(default, float) or default == Placeholder.FLOAT:
@@ -143,21 +148,21 @@ def override(config):
             new[key] = value
             config[key] = value
 
-    print(f'{Fore.YELLOW}=========={Style.RESET_ALL}')
+    print(f"{Fore.YELLOW}=========={Style.RESET_ALL}")
     if config:
         width = max(len(key) for key in config.keys())
         for key, value in config.items():
             if key in new:
-                print(f'{Fore.GREEN}{key:>{width}s}: {value}{Style.RESET_ALL}')
+                print(f"{Fore.GREEN}{key:>{width}s}: {value}{Style.RESET_ALL}")
             elif type(value) == Placeholder:
-                raise RuntimeError(f'Required: {key}')
+                raise RuntimeError(f"Required: {key}")
             else:
-                print(f'{key:>{width}s}: {value}')
+                print(f"{key:>{width}s}: {value}")
     else:
-        print('no config')
-    print(f'{Fore.YELLOW}=========={Style.RESET_ALL}')
+        print("no config")
+    print(f"{Fore.YELLOW}=========={Style.RESET_ALL}")
 
     # bonus
-    if 'gpu' in config:
-        os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-        os.environ['CUDA_VISIBLE_DEVICES'] = config['gpu']
+    if "gpu" in config:
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = config["gpu"]

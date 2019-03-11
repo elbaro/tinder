@@ -30,7 +30,7 @@ class SumTree(object):
 
     def __init__(self, capacity):
         self.capacity = capacity
-        self.tree = np.zeros(2*capacity - 1)
+        self.tree = np.zeros(2 * capacity - 1)
         self.data = np.zeros(capacity, dtype=object)
 
     def _propagate(self, idx, change):
@@ -51,7 +51,7 @@ class SumTree(object):
         if s <= self.tree[left]:
             return self._retrieve(left, s)
         else:
-            return self._retrieve(right, s-self.tree[left])
+            return self._retrieve(right, s - self.tree[left])
 
     def total(self):
         return self.tree[0]
@@ -80,7 +80,7 @@ class SumTree(object):
 
 
 # Copied from OpenAI Baseline
-class PrioritizedReplayMemory(object):   # stored as ( s, a, r, s_ ) in SumTree
+class PrioritizedReplayMemory(object):  # stored as ( s, a, r, s_ ) in SumTree
 
     e = 0.01
     a = 0.6
@@ -94,7 +94,7 @@ class PrioritizedReplayMemory(object):   # stored as ( s, a, r, s_ ) in SumTree
         return (error + self.e) ** self.a
 
     def push(self, sample):  # push with maximal priority
-        self.len = min(self.len+1, self.tree.capacity)
+        self.len = min(self.len + 1, self.tree.capacity)
 
         p = self._getPriority(self.max_error)
         self.tree.add(p, sample)
@@ -140,15 +140,15 @@ class EpsilonGreedy(object):
         self.start_e = start_e
         self.final_e = final_e
         self.final_episode = final_episode
-        self.exp_rate = (final_e/start_e)**(1/final_episode)
-        self.linear_rate = (start_e-final_e)/final_episode
+        self.exp_rate = (final_e / start_e) ** (1 / final_episode)
+        self.linear_rate = (start_e - final_e) / final_episode
 
     def linear(self, episode):
         if episode <= self.final_episode:
-            return self.start_e - self.linear_rate*episode
+            return self.start_e - self.linear_rate * episode
         return self.final_e
 
     def exponoential(self, episode):
         if episode <= self.final_episode:
-            return self.start_e*(self.exp_rate**episode)
+            return self.start_e * (self.exp_rate ** episode)
         return self.final_e

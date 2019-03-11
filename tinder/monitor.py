@@ -81,24 +81,24 @@ class Stats(SimpleNamespace):
         for (k, v) in kwargs.items():
             self.__dict__[k].update(v, count)
 
-    def log_average(self, tb, step: int, format: str="%s"):
+    def log_average(self, tb, step: int, format: str = "%s"):
         for (name, stat) in self.__dict__.items():
             tb.add_scalar(format % name, stat.average, step)
 
-    def log_ema(self, tb, step: int, format: str="%s"):
+    def log_ema(self, tb, step: int, format: str = "%s"):
         for (name, stat) in self.__dict__.items():
             tb.add_scalar(format % name, stat.ema, step)
 
     def display_average(self):
         s = []
         for (name, stat) in self.__dict__.items():
-            s.append(name + ': %.4F' % stat.average)
+            s.append(name + ": %.4F" % stat.average)
 
-        return '    '.join(s)
+        return "    ".join(s)
 
     def display_ema(self):
         s = []
         for (name, stat) in self.__dict__.items():
-            s.append(name + ': %.4F' % stat.ema)
+            s.append(name + ": %.4F" % stat.ema)
 
-        return '    '.join(s)
+        return "    ".join(s)

@@ -33,7 +33,7 @@ def semantic_segmentation_iou(score: torch.Tensor, label: torch.Tensor) -> torch
 
     out = []
     for i in range(num_classes):
-        TP = ((prediction == i) & (label == i)).float().sum(dim=1)    # [N]
+        TP = ((prediction == i) & (label == i)).float().sum(dim=1)  # [N]
         union = ((prediction == i) | (label == i)).float().sum(dim=1) + 1  # [N]
         out.append(TP / union)
 
@@ -91,15 +91,15 @@ class ConfusionMatrix(object):
                 self.TP_FN[c] += (answer == c).sum()
 
     def precision(self):
-        return self.TP / (self.TP_FP+self.EPS)
+        return self.TP / (self.TP_FP + self.EPS)
 
     def recall(self):
-        return self.TP / (self.TP_FN+self.EPS)
+        return self.TP / (self.TP_FN + self.EPS)
 
     def f1_score_per_class(self):
         precision = self.precision()
         recall = self.recall()
-        return 2/((1/(precision+self.EPS))+(1/(recall+self.EPS)))
+        return 2 / ((1 / (precision + self.EPS)) + (1 / (recall + self.EPS)))
 
     def f1_score_mean(self):
         return self.f1_score_per_class().mean()

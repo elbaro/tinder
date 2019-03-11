@@ -32,7 +32,9 @@ def test_streaming_dataloader():
     source.put(4)
     source.put(5)
 
-    loader = tinder.dataset.StreamingDataloader(source, batch_size=2, num_workers=3, transform=transform)
+    loader = tinder.dataset.StreamingDataloader(
+        source, batch_size=2, num_workers=3, transform=transform
+    )
     cnt = 0
     for batch in loader:
         cnt += len(batch)
