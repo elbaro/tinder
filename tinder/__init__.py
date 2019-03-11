@@ -15,6 +15,7 @@ from . import dataset
 from . import monitor
 from . import queue
 from . import rl
+from . import model
 
 # shortcuts
 from .config import bootstrap, Placeholder, override
