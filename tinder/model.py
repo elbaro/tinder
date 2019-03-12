@@ -162,6 +162,7 @@ class Model(object):
             if interactive
             else range(self.bundle.epoch + 1, epochs + 1)
         )
+        metrics = None
         for epoch in for1:
             metrics = self.train_epoch(
                 train_loader,
@@ -196,6 +197,9 @@ class Model(object):
                     epoch=self.bundle.epoch,
                     score=metrics[score_col] if (score_col is not None) else 0.0,
                 )
+
+        if metrics is not None:
+            return metrics
 
     def test(self, net, loader, test_minibatch_fn, id_col="id"):
         net.eval()
