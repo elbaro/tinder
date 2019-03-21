@@ -62,7 +62,7 @@ class Model(object):
             step += 1
             batch_size = len(batch)
             n += batch_size
-            result = train_minibatch_fn(batch)
+            result = train_minibatch_fn(batch, True)
 
             if not manual_opt:
                 self.opt.zero_grad()
@@ -115,7 +115,7 @@ class Model(object):
         metrics = {}
         for batch in loader:
             n += len(batch)
-            result = eval_minibatch_fn(batch)
+            result = eval_minibatch_fn(batch, False)
             for (k, v) in result.items():
                 if torch.is_tensor(v):
                     v = v.item()
@@ -210,7 +210,7 @@ class Model(object):
             assert id_col in batch
 
             batch["batch_size"] = len(batch)
-            minibatch_result = test_minibatch_fn(batch)
+            minibatch_result = test_minibatch_fn(batch, False)
             assert len(minibatch_result) == len(batch)
             for res in zip(batch[id_col], minibatch_result):
                 result[res[0]] = res[1]
