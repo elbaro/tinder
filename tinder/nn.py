@@ -275,10 +275,11 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     return ((norms - 1) ** 2).mean()
 
 
-def sliced_wasserstein_dist(x, y, sample_cnt):
+def sliced_wasserstein_dist(x, y, sample_cnt, p=2):
     """Calculated a stochastic sliced wasserstein distance between x and y.
 
-    It uses p=2.
+    c(x,y) = ||x-y||p
+
 
     Arguments:
         x {torch.Tensor} -- A tensor of shape [N,*]
@@ -295,12 +296,14 @@ def sliced_wasserstein_dist(x, y, sample_cnt):
 
     for _i in range(sample_cnt):
         unit_vector = torch.randn_like(x[0]).unsqueeze(1)
-        unit_vector = torch.nn.functional.normalize(unit_vector, p=2, dim=0)  # unit_vector: [D,1]
+        unit_vector = torch.nn.functional.normalize(
+            unit_vector, p=2, dim=0
+        )  # unit_vector: [D,1]
         xx = torch.matmul(x, unit_vector).squeeze(1)  #  [N,D] * [D,1] = [N,1] -> [N]
         yy = torch.matmul(y, unit_vector).squeeze(1)
         sorted_x, _ = xx.sort()
         sorted_y, _ = yy.sort()
-        s += torch.dist(sorted_x,sorted_y)
+        s += torch.dist(sorted_x, sorted_y, p=p)
 
     s /= sample_cnt
     return s
