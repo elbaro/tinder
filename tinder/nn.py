@@ -292,21 +292,19 @@ def sliced_wasserstein_dist(x, y, sample_cnt, p=2):
 
     x = flatten(x)  # x: [N,D]
     y = flatten(y)  # y: [N,D]
-    s = 0
 
-    for _i in range(sample_cnt):
-        unit_vector = torch.randn_like(x[0]).unsqueeze(1)
-        unit_vector = torch.nn.functional.normalize(
-            unit_vector, p=2, dim=0
-        )  # unit_vector: [D,1]
-        xx = torch.matmul(x, unit_vector).squeeze(1)  #  [N,D] * [D,1] = [N,1] -> [N]
-        yy = torch.matmul(y, unit_vector).squeeze(1)
-        sorted_x, _ = xx.sort()
-        sorted_y, _ = yy.sort()
-        s += torch.dist(sorted_x, sorted_y, p=p)
+    unit_vector = torch.randn(x.shape[1], sample_cnt)
+    unit_vector = torch.nn.functional.normalize(  # each col has a norm 1
+        unit_vector, p=2, dim=0
+    )
+    xx = torch.matmul(x, unit_vector)  #  [N,D] * [D, samples] = [N,samples]
+    yy = torch.matmul(y, unit_vector)
+    sorted_x, _ = xx.sort(dim=0)  # [N,samples]
+    sorted_y, _ = yy.sort(dim=0)
 
-    s /= sample_cnt
-    return s
+    w_dist = (sorted_x-sorted_y).norm(p=p, dim=0).mean()
+
+    return w_dist
 
 
 def odin(
