@@ -1,15 +1,18 @@
 language: python
 python:
-  - "3.6"
+  - "3.7"
+dist: xenial
 # command to install dependencies
 install:
   - pip install -qr requirements.txt
   - pip install -q sphinx sphinx_rtd_theme
   - python setup.py install
+  - pip install pytest-cov
+  - pip install coveralls
 
 # command to run tests
 script:
-  - pytest tinder/
+  - pytest --cov=tinder/
   - cd docs && make html && touch _build/html/.nojekyll
 
 deploy:
@@ -21,3 +24,6 @@ deploy:
   verbose: true
   on:
     branch: master
+
+after_success:
+  - coveralls
