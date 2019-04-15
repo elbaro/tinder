@@ -1,3 +1,4 @@
+import os
 from types import SimpleNamespace
 import tinder
 import torch
@@ -13,9 +14,9 @@ class Model(object):
     }
 
     def __init__(
-        self, name, net, opt=None, logger_fn=None, weight_dir=None, load="latest"
+        self, name, net, opt=None, weight_dir=None, load="latest"
     ):
-
+        self.name = name
         self.net = net
         if isinstance(opt, torch.optim.Optimizer):
             self.opt = opt
@@ -23,8 +24,6 @@ class Model(object):
             self.opt = Model.OPT_MAP[opt["name"]](*opt["args"], **opt["kwargs"])
 
         self.bundle = SimpleNamespace(net=net, opt=self.opt, epoch=0, step=0)
-
-        self.logger_fn = logger_fn
 
         if weight_dir is not None:
             self.saver = tinder.saver.Saver(weight_dir, name)
@@ -45,7 +44,6 @@ class Model(object):
         self,
         loader,
         train_minibatch_fn,
-        logging="step",
         manual_opt=False,
         interactive=False,
     ):
@@ -73,11 +71,6 @@ class Model(object):
                 if torch.is_tensor(v):
                     result[k] = v.item()
 
-            if (self.logger_fn is not None) and logging == "step":
-                for (k, v) in result.items():
-                    # self.tb.add_scalar(k, v, step)
-                    self.logger_fn("train." + k, v, step)
-
             if interactive:
                 msg = "[train]"
                 for (k, v) in result.items():
@@ -101,10 +94,6 @@ class Model(object):
         for k in metrics:
             metrics[k] /= n
 
-        if (self.logger_fn is not None) and logging == "epoch":
-            for (k, v) in metrics.items():
-                self.logger_fn("train." + k, v, step)
-
         # return per-sample metric
         return metrics
 
@@ -127,10 +116,6 @@ class Model(object):
         for k in metrics:
             metrics[k] /= n
 
-        step = self.bundle.step
-        if self.logger_fn is not None:
-            for (k, v) in metrics.items():
-                self.logger_fn("eval." + k, v, step)
         return metrics
 
     def train(
@@ -138,14 +123,20 @@ class Model(object):
         epochs,
         train_loader,
         train_minibatch_fn,
-        logging="step",
         save_epoch_interval=1,
+        lr_scheduler=None,
+        log_dir=None,
         score_col=None,
         manual_opt=False,
         eval_loader=None,
         eval_minibatch_fn=None,
         interactive=False,
     ):
+        if log_dir is not None:
+            from tensorboardX import SummaryWriter
+            train_logger = SummaryWriter(os.path.join(log_dir,'train'))
+            if eval_minibatch_fn is not None:
+                eval_logger = SummaryWriter(os.path.join(log_dir,'validation'))
 
         if interactive:
             YELLOW = Fore.YELLOW
@@ -164,13 +155,20 @@ class Model(object):
         )
         metrics = None
         for epoch in for1:
+            if lr_scheduler is not None:
+                lr_scheduler.step()
+
             metrics = self.train_epoch(
                 train_loader,
                 train_minibatch_fn,
-                logging,
-                manual_opt,
+                manual_opt=manual_opt,
                 interactive=interactive,
             )
+
+            if log_dir is not None:
+                for (k, v) in metrics.items():
+                    train_logger.add_scalar(k, v, epoch)
+
 
             train_msg = ""
             for (k, v) in metrics.items():
@@ -178,6 +176,11 @@ class Model(object):
 
             if (eval_loader is not None) and (eval_minibatch_fn is not None):
                 metrics = self.eval(eval_loader, eval_minibatch_fn)
+
+                if log_dir is not None:
+                    for (k, v) in metrics.items():
+                        eval_logger.add_scalar(k, v, epoch)
+
                 eval_msg = ""
                 for (k, v) in metrics.items():
                     eval_msg += f"{k} = {v:8.4f}    "

@@ -275,7 +275,7 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     return ((norms - 1) ** 2).mean()
 
 
-def sliced_wasserstein_dist(x, y, sample_cnt, p=2):
+def sliced_wasserstein_dist(x, y, sample_cnt, p=2, weight_x=None, weight_y=None):
     """Calculated a stochastic sliced wasserstein distance between x and y.
 
     c(x,y) = ||x-y||p
@@ -283,8 +283,11 @@ def sliced_wasserstein_dist(x, y, sample_cnt, p=2):
 
     Arguments:
         x {torch.Tensor} -- A tensor of shape [N,*]
-        y {torch.Tensor} -- A tensor of shape [N,*], same as x.
-        sample_cnt {int} -- A number of samples to estimate the distance.
+        y {torch.Tensor} -- A tensor of shape [N,*], same as x
+        sample_cnt {int} -- A number of samples to estimate the distance
+        p {int} -- L_p is used to calculate sliced w-dist
+        weight_x {torch.Tensor} -- A tensor of shape [N] or None
+        weight_y {torch.Tensor} -- A tensor of shape [N] or None
 
     Returns:
         scalar -- The sliced wasserstein distance (with gradient)
@@ -293,16 +296,33 @@ def sliced_wasserstein_dist(x, y, sample_cnt, p=2):
     x = flatten(x)  # x: [N,D]
     y = flatten(y)  # y: [N,D]
 
-    unit_vector = torch.randn(x.shape[1], sample_cnt)
+    unit_vector = torch.randn(x.shape[1], sample_cnt, device=x.device)
     unit_vector = torch.nn.functional.normalize(  # each col has a norm 1
         unit_vector, p=2, dim=0
     )
-    xx = torch.matmul(x, unit_vector)  #  [N,D] * [D, samples] = [N,samples]
-    yy = torch.matmul(y, unit_vector)
-    sorted_x, _ = xx.sort(dim=0)  # [N,samples]
-    sorted_y, _ = yy.sort(dim=0)
+    x = torch.matmul(x, unit_vector)  #  [N,D] * [D, samples] = [N,samples]
+    y = torch.matmul(y, unit_vector)
 
-    w_dist = (sorted_x-sorted_y).norm(p=p, dim=0).mean()
+
+    sorted_x, sort_index_x = x.sort(dim=0)  # [N,samples]
+    sorted_y, sort_index_y = y.sort(dim=0)  # [N,samples]
+
+    if (weight_x is None) and (weight_y is None):
+        w_dist = (sorted_x-sorted_y).norm(p=p, dim=0).mean()
+    elif weight_x is None:
+        weight_y = torch.nn.functional.normalize(weight_y, p=1, dim=0)*weight_y.shape[0]
+        weight_y = weight_y[sort_index_y]  # [N,samples]
+        w_dist = (sorted_x-sorted_y*weight_y).norm(p=p, dim=0).mean()
+    elif weight_y is None:
+        weight_x = torch.nn.functional.normalize(weight_x, p=1, dim=0)*weight_x.shape[0]
+        weight_x = weight_x[sort_index_x]  # [N,samples]
+        w_dist = (sorted_x*weight_x-sorted_y).norm(p=p, dim=0).mean()
+    else:
+        weight_x = torch.nn.functional.normalize(weight_x, p=1, dim=0)*weight_x.shape[0]
+        weight_x = weight_x[sort_index_x]  # [N,samples]
+        weight_y = torch.nn.functional.normalize(weight_y, p=1, dim=0)*weight_y.shape[0]
+        weight_y = weight_y[sort_index_y]  # [N,samples]
+        w_dist = (sorted_x*weight_x-sorted_y*weight_y).norm(p=p, dim=0).mean()
 
     return w_dist
 
