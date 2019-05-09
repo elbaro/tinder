@@ -13,7 +13,6 @@ install:
 # command to run tests
 script:
   - pytest --cov=tinder/
-  - cd docs && make html && touch _build/html/.nojekyll
 
 deploy:
   provider: pages
@@ -27,3 +26,4 @@ deploy:
 
 after_success:
   - coveralls
+  - cd docs && make html && touch _build/html/.nojekyll

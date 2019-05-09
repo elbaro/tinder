@@ -275,15 +275,40 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     return ((norms - 1) ** 2).mean()
 
 
-def sliced_wasserstein_dist(x, y, sample_cnt, p=2, weight_x=None, weight_y=None):
+
+# def one_dimensional_euclidean_wasserstein_dist(x, y, p=2, weight_x=None, weight_y=None):
+#     """1D wasserstein distance between p(X) and p(Y) where d(X,Y)=|X-Y|.
+
+def one_dimensional_discrete_wasserstein_distance(px, py, p=2):
+    """1D wasserstein distance between p(class) and p(class) where d(cls1,cls2)=(cls2!=cls2).
+
+    Arguments:
+        px {torch.Tensor} -- [N,D]. N discrete distributions of shape [D] where p(1)+..p(D)=1
+        py {torch.Tensor} -- [N,D]
+
+    Keyword Arguments:
+        p {int} -- [description] (default: {2})
+    """
+
+    # === ((px-py).abs().sum(dim=1)/(2.0)).mean()
+    return (px-py).abs().sum()/2.0/px.size(0)
+
+def test_one_dimensional_discrete_wasserstein_distance():
+    import pytest
+    px = torch.Tensor([[0.1,0.2,0.3,0.4]])
+    py = torch.Tensor([[0.3,0.1,0.1,0.5]])
+    dist = one_dimensional_discrete_wasserstein_distance(px, py, p=2).item()
+    assert pytest.approx(dist)==0.3
+
+def sliced_wasserstein_distance(x, y, sample_cnt, p=2, weight_x=None, weight_y=None):
     """Calculated a stochastic sliced wasserstein distance between x and y.
 
     c(x,y) = ||x-y||p
 
 
     Arguments:
-        x {torch.Tensor} -- A tensor of shape [N,*]
-        y {torch.Tensor} -- A tensor of shape [N,*], same as x
+        x {torch.Tensor} -- A tensor of shape [N,*]. Samples from the distribution p(X)
+        y {torch.Tensor} -- A tensor of shape [N,*]. Samples from the distribution p(Y)
         sample_cnt {int} -- A number of samples to estimate the distance
         p {int} -- L_p is used to calculate sliced w-dist
         weight_x {torch.Tensor} -- A tensor of shape [N] or None
