@@ -120,7 +120,10 @@ def override(config):
     """
 
     if isinstance(config, SimpleNamespace):
+        style = "simple"
         config = config.__dict__
+    else:
+        style = "dict"
 
     new = {}
 
@@ -166,3 +169,8 @@ def override(config):
     if "gpu" in config:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"] = config["gpu"]
+
+    if style == "simple":
+        new = SimpleNamespace(**new)
+
+    return new
