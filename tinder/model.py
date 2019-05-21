@@ -133,6 +133,7 @@ class Model(object):
         interactive=False,
     ):
         if log_dir is not None:
+            # from torch.utils.tensorboard import SummaryWriter
             from tensorboardX import SummaryWriter
             train_logger = SummaryWriter(os.path.join(log_dir,'train'))
             if eval_minibatch_fn is not None:
@@ -200,6 +201,11 @@ class Model(object):
                     epoch=self.bundle.epoch,
                     score=metrics[score_col] if (score_col is not None) else 0.0,
                 )
+
+        if log_dir is not None:
+            train_logger.close()
+            if eval_minibatch_fn is not None:
+                eval_logger.close()
 
         if metrics is not None:
             return metrics

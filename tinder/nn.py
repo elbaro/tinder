@@ -291,7 +291,7 @@ def one_dimensional_discrete_wasserstein_distance(px, py, p=2):
     """
 
     # === ((px-py).abs().sum(dim=1)/(2.0)).mean()
-    return (px-py).abs().sum()/2.0/px.size(0)
+    return (px-py).abs().sum()/2.0/float(px.size(0))
 
 def test_one_dimensional_discrete_wasserstein_distance():
     import pytest
