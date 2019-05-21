@@ -133,8 +133,7 @@ class Model(object):
         interactive=False,
     ):
         if log_dir is not None:
-            # from torch.utils.tensorboard import SummaryWriter
-            from tensorboardX import SummaryWriter
+            from torch.utils.tensorboard import SummaryWriter
             train_logger = SummaryWriter(os.path.join(log_dir,'train'))
             if eval_minibatch_fn is not None:
                 eval_logger = SummaryWriter(os.path.join(log_dir,'validation'))
