@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nn &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Dataset" href="dataset.html" />
+    <link rel="prev" title="Image" href="image.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saver.html">Saver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="image.html">Image</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="queue.html">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>nn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/nn.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nn">
+<h1>nn<a class="headerlink" href="#nn" title="Permalink to this headline">¶</a></h1>
+<p>Layers and functinal methods for PyTorch</p>
+<span class="target" id="module-tinder.nn"></span><dl class="class">
+<dt id="tinder.nn.AssertSize">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">AssertSize</code><span class="sig-paren">(</span><em>*size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#AssertSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.AssertSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the input has the specified size.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">AssertSize</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">AssertSize</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>iterable</em>) – an iterable of dimensions. Each dimension is one of -1, None, or positive integer.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.nn.AssertSize.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#AssertSize.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.AssertSize.forward" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.Flatten">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">Flatten</code><a class="reference internal" href="_modules/tinder/nn.html#Flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.Flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>A layer that flattens the input.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="o">..</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="o">..</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+
+    <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="o">..</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="o">..</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+
+    <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="mi">3</span><span class="o">*</span><span class="mi">512</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – input tensor</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.nn.Flatten.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#Flatten.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.Flatten.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.Identity">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">Identity</code><span class="sig-paren">(</span><em>*_args</em>, <em>**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#Identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.Identity" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tinder.nn.Identity.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#Identity.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.Identity.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.MinibatchStddev">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">MinibatchStddev</code><a class="reference internal" href="_modules/tinder/nn.html#MinibatchStddev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.MinibatchStddev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Layer for GAN Discriminator used in PGGAN.
+It penalizes when images in the minibatch look similar.
+For example, G generates fall into mode collapse and generate similar images,
+then stddev of the minibatch is small. D looks at the small stddev and thinks this is likely fake.</p>
+<p>This layer calculates stddev and provide it as additional channel.</p>
+<dl class="method">
+<dt id="tinder.nn.MinibatchStddev.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#MinibatchStddev.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.MinibatchStddev.forward" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>N</em><em>, </em><em>C</em><em>, </em><em>H</em><em>, </em><em>W</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The last channel dimension is stddev.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(N, C+1, H, W)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.PixelwiseNormalize">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">PixelwiseNormalize</code><a class="reference internal" href="_modules/tinder/nn.html#PixelwiseNormalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.PixelwiseNormalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pixelwise Normalization used in PGGAN.
+It normalizes the input [B,C,H,W] so that the L2 norms over the C dimension is 1.
+There are B*H*W norms.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">PixelwiseNormalize</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="tinder.nn.PixelwiseNormalize.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#PixelwiseNormalize.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.PixelwiseNormalize.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.View">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">View</code><span class="sig-paren">(</span><em>*size_without_batch_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#View"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.View" title="Permalink to this definition">¶</a></dt>
+<dd><p>nn.Module version of tensor.view().</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layer</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">View</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The batch dimension is implicit.
+The above code is the same as <cite>tensor.view(tensor.size(0), 3, -1, 256)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size_without_batch_dim</strong> (<em>iterable</em>) – each dimension is one of -1, None, or positive.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.nn.View.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#View.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.View.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.nn.WeightScale">
+<em class="property">class </em><code class="descclassname">tinder.nn.</code><code class="descname">WeightScale</code><span class="sig-paren">(</span><em>prev_layer</em>, <em>init_with_leakiness: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#WeightScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.WeightScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>A weight normalizing layer used in PGGAN.</p>
+<p>How it works:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Initialize your ConvLayer with weights from N(0, std=kaiming)</p></li>
+<li><p>WeightScale calculates the initial std of weights (from 1)</p></li>
+<li><p>Divide Conv.weights by std (from 2). Now Conv.weights are ~N(0,1)</p></li>
+<li><p>On forward, WeightScale multiply the input by std (from 2).</p></li>
+<li><p>Bias or Activation is applied after WeightScale. If Conv has bias, WeightScale steals it.</p></li>
+</ol>
+</div></blockquote>
+<p>Note that the scale factor calculated in 2 is constant permanently.</p>
+<p>Advantage:</p>
+<blockquote>
+<div><p>The author of PGGAN claims Adam is better at training weights in N(0,1) than training conv weights of different std.</p>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conv</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">WeightScale</span><span class="p">(</span><span class="n">conv</span><span class="p">)</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">conv</span><span class="p">,</span>
+    <span class="n">ws</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prev_layer</strong> – a layer (e.g. nn.Conv2d) with <cite>weight</cite> and optionally <cite>bias</cite>.</p></li>
+<li><p><strong>init_with_leakiness</strong> – if given, it initializes <cite>prev_layer</cite> with <cite>kaiming_normal</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.nn.WeightScale.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#WeightScale.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.WeightScale.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.nn.loss_wgan_gp">
+<code class="descclassname">tinder.nn.</code><code class="descname">loss_wgan_gp</code><span class="sig-paren">(</span><em>D</em>, <em>real: torch.Tensor</em>, <em>fake: torch.Tensor</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/tinder/nn.html#loss_wgan_gp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.loss_wgan_gp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gradient Penalty for Wasserstein GAN.</p>
+<p>It generates random interpolations between the real and fake points,
+and tries to make grad norm close to 1.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The second-order derivative is unstable in PyTorch.
+Some layers in your G/D may not work.</p></li>
+<li><p>It assumes CUDA.</p></li>
+</ul>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gp</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">loss_wgan_gp</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">real_img</span><span class="p">,</span> <span class="n">fake_img</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="n">fake</span><span class="p">)</span><span class="o">-</span><span class="n">D</span><span class="p">(</span><span class="n">real</span><span class="p">)</span><span class="o">+</span><span class="mi">10</span><span class="o">*</span><span class="n">gp</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>callable</em>) – A discriminator. Typically <cite>nn.Module</cite> or a lambda function that returns the score.</p></li>
+<li><p><strong>real</strong> (<em>torch.Tensor</em>) – real image batch.</p></li>
+<li><p><strong>fake</strong> (<em>torch.Tensor</em>) – fake image batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gradient penalty. optimizing on this loss will update D.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(torch.Tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.nn.odin">
+<code class="descclassname">tinder.nn.</code><code class="descname">odin</code><span class="sig-paren">(</span><em>network: torch.nn.modules.module.Module</em>, <em>x: torch.Tensor</em>, <em>threshold</em>, <em>T=1000</em>, <em>epsilon=0.0012</em><span class="sig-paren">)</span> &#x2192; Tuple[bool, torch.Tensor]<a class="reference internal" href="_modules/tinder/nn.html#odin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.odin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decide if we should reject the prediction for the given example x using ODIN.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">is_reject</span><span class="p">,</span> <span class="n">max_p</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">odin</span><span class="p">(</span><span class="n">resnet</span><span class="p">,</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.003</span><span class="p">)</span>
+<span class="c1"># assert (is_reject == (max_p&lt;0.003)).all()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{nn.Module} -- A function returning logits</strong> (<em>network</em>) – </p></li>
+<li><p><strong>{torch.Tensor} -- input of</strong><strong> [</strong><strong>B</strong><strong>,</strong><strong>*</strong><strong>]</strong> (<em>x</em>) – </p></li>
+<li><p><strong>{</strong><strong>[</strong><strong>type</strong><strong>]</strong><strong>} --</strong><strong> [</strong><strong>description</strong><strong>]</strong> (<em>threshold</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>{int} -- A parameter for temperature scailing</strong><strong> (</strong><strong>default</strong> (<em>T</em>) – {1000})</p></li>
+<li><p><strong>{float} -- A parameter for noisyness</strong><strong> (</strong><strong>default</strong> (<em>epsilon</em>) – {0.0012})</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor] – (is_reject of shape [B], max_p of shape [B])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.nn.one_dimensional_discrete_wasserstein_distance">
+<code class="descclassname">tinder.nn.</code><code class="descname">one_dimensional_discrete_wasserstein_distance</code><span class="sig-paren">(</span><em>px</em>, <em>py</em>, <em>p=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#one_dimensional_discrete_wasserstein_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.one_dimensional_discrete_wasserstein_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>1D wasserstein distance between p(class) and p(class) where d(cls1,cls2)=(cls2!=cls2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{torch.Tensor} --</strong><strong> [</strong><strong>N</strong><strong>,</strong><strong>D</strong><strong>]</strong><strong> N discrete distributions of shape</strong><strong> [</strong><strong>D</strong><strong>] </strong><strong>where p</strong> (<em>px</em>) – </p></li>
+<li><p><strong>{torch.Tensor} --</strong><strong> [</strong><strong>N</strong><strong>,</strong><strong>D</strong><strong>]</strong> (<em>py</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>{int} --</strong><strong> [</strong><strong>description</strong><strong>] </strong><strong>(</strong><strong>default</strong> (<em>p</em>) – {2})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.nn.sliced_wasserstein_distance">
+<code class="descclassname">tinder.nn.</code><code class="descname">sliced_wasserstein_distance</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>sample_cnt</em>, <em>p=2</em>, <em>weight_x=None</em>, <em>weight_y=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/nn.html#sliced_wasserstein_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.nn.sliced_wasserstein_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated a stochastic sliced wasserstein distance between x and y.</p>
+<p>c(x,y) = ||x-y||p</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{torch.Tensor} -- A tensor of shape</strong><strong> [</strong><strong>N</strong><strong>,</strong><strong>*</strong><strong>]</strong><strong> Samples from the distribution p</strong> (<em>y</em>) – </p></li>
+<li><p><strong>{torch.Tensor} -- A tensor of shape</strong><strong> [</strong><strong>N</strong><strong>,</strong><strong>*</strong><strong>]</strong><strong> Samples from the distribution p</strong> – </p></li>
+<li><p><strong>{int} -- A number of samples to estimate the distance</strong> (<em>sample_cnt</em>) – </p></li>
+<li><p><strong>{int} -- L_p is used to calculate sliced w-dist</strong> (<em>p</em>) – </p></li>
+<li><p><strong>{torch.Tensor} -- A tensor of shape</strong><strong> [</strong><strong>N</strong><strong>] or </strong><strong>None</strong> (<em>weight_y</em>) – </p></li>
+<li><p><strong>{torch.Tensor} -- A tensor of shape</strong><strong> [</strong><strong>N</strong><strong>] or </strong><strong>None</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>scalar – The sliced wasserstein distance (with gradient)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dataset.html" class="btn btn-neutral float-right" title="Dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="image.html" class="btn btn-neutral float-left" title="Image" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

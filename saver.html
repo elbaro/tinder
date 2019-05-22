@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Saver &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Monitor" href="monitor.html" />
+    <link rel="prev" title="Config" href="config.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Saver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="queue.html">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Saver</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/saver.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="saver">
+<h1>Saver<a class="headerlink" href="#saver" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tinder.saver.Saver">
+<em class="property">class </em><code class="descclassname">tinder.saver.</code><code class="descname">Saver</code><span class="sig-paren">(</span><em>weight_dir</em>, <em>exp_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/saver.html#Saver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.saver.Saver" title="Permalink to this definition">¶</a></dt>
+<dd><p>A helper class to save and load your model.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">saver</span> <span class="o">=</span> <span class="n">Saver</span><span class="p">(</span><span class="s1">&#39;/data/weights/&#39;</span><span class="p">,</span> <span class="s1">&#39;resnet152-cosine&#39;</span><span class="p">)</span>
+<span class="n">saver</span><span class="o">.</span><span class="n">load_latest</span><span class="p">(</span><span class="n">alexnet</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span>  <span class="c1"># resume from the latest</span>
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="o">..</span>
+    <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">alexnet</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="n">acc</span><span class="p">)</span>
+
+<span class="c1"># inference</span>
+<span class="n">saver</span><span class="o">.</span><span class="n">load_best</span><span class="p">(</span><span class="n">alexnet</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># no need for optimizer</span>
+</pre></div>
+</div>
+<p>The batch dimension is implicit.
+The above code is the same as <cite>tensor.view(tensor.size(0), 3, -1, 256)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – directory for your weights</p></li>
+<li><p><strong>exp_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of your experiment (e.g. resnet152-cosine)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.saver.Saver.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>model_dict: dict</em>, <em>epoch: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/tinder/saver.html#Saver.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.saver.Saver.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the model.</p>
+<p>It is recommended to use <cite>load_latest</cite> or <cite>load_best</cite> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – see save()</p></li>
+<li><p><strong>epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – epoch to load</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.saver.Saver.load_best">
+<code class="descname">load_best</code><span class="sig-paren">(</span><em>dic: dict</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/tinder/saver.html#Saver.load_best"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.saver.Saver.load_best" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the best model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – see save()</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SimpleNamespace</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.saver.Saver.load_latest">
+<code class="descname">load_latest</code><span class="sig-paren">(</span><em>dic: dict</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/tinder/saver.html#Saver.load_latest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.saver.Saver.load_latest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the latest model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – see save()</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the epoch of the loaded model. -1 if no model exists.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.saver.Saver.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>dic: dict</em>, <em>epoch: int</em>, <em>score: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/saver.html#Saver.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.saver.Saver.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model.</p>
+<p><cite>score</cite> is used to choose the best model.
+An example for score is validation accuracy.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;net&#39;</span><span class="p">:</span><span class="n">net</span><span class="p">,</span>
+    <span class="s1">&#39;opt&#39;</span><span class="p">:</span><span class="n">opt</span><span class="p">,</span>
+    <span class="s1">&#39;scheduler&#39;</span><span class="p">:</span><span class="n">cosine_annealing</span><span class="p">,</span>
+    <span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="mf">0.01</span>
+<span class="p">}</span>
+
+<span class="n">saver</span> <span class="o">=</span> <span class="n">Saver</span><span class="p">()</span>
+<span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="n">val_acc</span><span class="p">)</span>
+<span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="n">val_acc</span><span class="p">)</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="n">saver</span><span class="o">.</span><span class="n">load_latest</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – the values are objects with <cite>state_dict</cite> and <cite>load_state_dict</cite></p></li>
+<li><p><strong>epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – number of epochs completed</p></li>
+<li><p><strong>score</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="monitor.html" class="btn btn-neutral float-right" title="Monitor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="config.html" class="btn btn-neutral float-left" title="Config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dataset &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Metrics" href="metrics.html" />
+    <link rel="prev" title="nn" href="nn.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saver.html">Saver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">nn</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="queue.html">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Dataset</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dataset.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-tinder.dataset">
+<span id="dataset"></span><h1>Dataset<a class="headerlink" href="#module-tinder.dataset" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="tinder.dataset.BalancedDataLoader">
+<code class="descclassname">tinder.dataset.</code><code class="descname">BalancedDataLoader</code><span class="sig-paren">(</span><em>dataset</em>, <em>classes</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/dataset.html#BalancedDataLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.dataset.BalancedDataLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>If your dataset is unbalanced, this wrapper provides a uniform sampling.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># -3 is sampled twice as many as 2 or 3.</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">BalancedDataLoader</span><span class="p">([</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="s1">&#39;G&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>iterable</em>) – torch Dataset, list, or any sequence with known length.</p></li>
+<li><p><strong>classes</strong> (<em>iterable</em>) – A list of hashable type. Its length should be equal to the dataset.</p></li>
+<li><p><strong>**kwargs</strong> – arguments to torch.utils.data.DataLoader</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.dataset.DataLoaderIterator">
+<code class="descclassname">tinder.dataset.</code><code class="descname">DataLoaderIterator</code><span class="sig-paren">(</span><em>loader</em>, <em>num=None</em>, <em>last_step=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/dataset.html#DataLoaderIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.dataset.DataLoaderIterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient DataLoader wrapper when you need to iterate more than a full batch.</p>
+<p>It is recommended to set <cite>drop_last=True</cite> in your DataLoader.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">DataLoaderIterator</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">DataLoaderIterator</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">last_step</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>  <span class="c1"># 3, 4, 5, 6</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loader</strong> (<em>torch.utils.data.DataLoader</em>) – </p></li>
+<li><p><strong>num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Defaults to None. <cite>None</cite> means infinite iteration.</p></li>
+<li><p><strong>last_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Defaults to 0. The iteration starts from <cite>last_step+1</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.dataset.StreamingDataloader">
+<em class="property">class </em><code class="descclassname">tinder.dataset.</code><code class="descname">StreamingDataloader</code><span class="sig-paren">(</span><em>q</em>, <em>batch_size: int</em>, <em>num_workers: int</em>, <em>transform</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/dataset.html#StreamingDataloader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.dataset.StreamingDataloader" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dataloader for streaming.</p>
+<p>If you have a stream of data (e.g. from RabbitMQ or Kafka), you cannot use a traditional Pytorch Dataset which requires <cite>__len__</cite> to be defined.
+In this case, you can put your streaming data into multiprocessing.Manager().Queue() in the background and pass it to StreamingDataloader.</p>
+<ul class="simple">
+<li><p>StreamingDataloader is an iterator.</p></li>
+<li><p><cite>__next__</cite> is blocking and returns at least one element.</p></li>
+<li><p>It never raises <cite>StopIteration</cite>.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tinder</span>
+
+<span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">msg</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">KafkaConsumer</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="s1">&#39;filenames&#39;</span><span class="p">,</span> <span class="n">consumer_id</span><span class="o">=</span><span class="s1">&#39;anonymous_123&#39;</span><span class="p">)</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">start_drain</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">StreamingDataloader</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">preprocess</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;batch: &#39;</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.dataset.hash100">
+<code class="descclassname">tinder.dataset.</code><code class="descname">hash100</code><span class="sig-paren">(</span><em>s: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/dataset.html#hash100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.dataset.hash100" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash a string into 1~100.
+Useful when you split a dataset into subsets.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tinder.dataset.random_split">
+<code class="descclassname">tinder.dataset.</code><code class="descname">random_split</code><span class="sig-paren">(</span><em>dataset</em>, <em>ratio</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/dataset.html#random_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.dataset.random_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a given dataset into several ones, e.g. train/val/test.</p>
+<p>The source of randomness comes from <cite>torch</cite>, which can be fixed by <cite>torch.manual_seed</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>{</strong><strong>[</strong><strong>type</strong><strong>]</strong><strong>} -- pytorch dataset object</strong> (<em>dataset</em>) – </p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>{list} -- A list representing the first n-1 portions.</strong><strong>  (</strong><strong>example</strong> (<em>ratio</em>) – {[0.7,0.2]} for 70% / 20% / 10%)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="metrics.html" class="btn btn-neutral float-right" title="Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="nn.html" class="btn btn-neutral float-left" title="nn" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Queue &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Visualize" href="batch.html" />
+    <link rel="prev" title="Metrics" href="metrics.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saver.html">Saver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitor.html">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Queue</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/queue.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="queue">
+<h1>Queue<a class="headerlink" href="#queue" title="Permalink to this headline">¶</a></h1>
+<p>These queues require additional dependencies.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Queue</p></th>
+<th class="head"><p>Python Dependency</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Redis</p></td>
+<td><p>redis</p></td>
+</tr>
+<tr class="row-odd"><td><p>RabbitMQ</p></td>
+<td><p>pika</p></td>
+</tr>
+<tr class="row-even"><td><p>Kafka</p></td>
+<td><p>confluent_kafka</p></td>
+</tr>
+<tr class="row-odd"><td><p>Nats</p></td>
+<td><p>nats</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="tinder.queue.NatsConsumer">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">NatsConsumer</code><span class="sig-paren">(</span><em>subject: str</em>, <em>max_inflight: int</em>, <em>client_name: str</em>, <em>durable_name: str = 'durable'</em>, <em>cluster_id: str = 'test-cluster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#NatsConsumer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.NatsConsumer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Nats Streaming consumer using durable queues.</p>
+<p>It allows you to resume your progress with manual acks.</p>
+<p>A durable subscription is identified by durable_name &amp; client_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a subject to subscribe</p></li>
+<li><p><strong>max_flight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the maximum number of msgs to hold in the client</p></li>
+<li><p><strong>durable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>client_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Defaults to ‘clientid’.</p></li>
+<li><p><strong>cluster_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Defaults to ‘test-cluster’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.queue.NatsProducer">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">NatsProducer</code><span class="sig-paren">(</span><em>subject: str</em>, <em>client_name: str</em>, <em>cluster_id: str = 'test-cluster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#NatsProducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.NatsProducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Nats Streaming producer using durable queues.</p>
+<p>It allows you to resume your progress with manual acks.</p>
+<p>A durable subscription is identified by durable_name &amp; client_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a subject to subscribe</p></li>
+<li><p><strong>max_flight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the maximum number of msgs to hold in the client</p></li>
+<li><p><strong>durable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>client_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Defaults to ‘clientid’.</p></li>
+<li><p><strong>cluster_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Defaults to ‘test-cluster’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.queue.KafkaConsumer">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">KafkaConsumer</code><span class="sig-paren">(</span><em>topic: str</em>, <em>prefetch: int</em>, <em>consumer_id: str</em>, <em>host: str = 'localhost'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#KafkaConsumer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.KafkaConsumer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tinder.queue.KafkaProducer">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">KafkaProducer</code><span class="sig-paren">(</span><em>topic: str</em>, <em>host: str = 'localhost'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#KafkaProducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.KafkaProducer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the name of a topic (queue) you publish to.</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Defaults to ‘localhost’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.queue.KafkaProducer.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#KafkaProducer.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.KafkaProducer.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>flush the reamining kafka messages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.KafkaProducer.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>msg: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#KafkaProducer.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.KafkaProducer.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>send a single string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a message to send.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.queue.RabbitConsumer">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">RabbitConsumer</code><span class="sig-paren">(</span><em>queue: str</em>, <em>prefetch: int</em>, <em>host: str = 'localhost'</em>, <em>port: int = 5672</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A RabbitMQ consumer that provides data in batch.</p>
+<p>If the prefetch is 3*B, and you are processing messsages in batch of the size B,
+the server sends you up to 2*B messages in advance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the name of a queue.</p></li>
+<li><p><strong>prefetch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of msgs to prefetch. reommend: batch_size*3</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the hostname to connect without port.</p></li>
+<li><p><strong>port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the port to connect</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.ack">
+<code class="descname">ack</code><span class="sig-paren">(</span><em>ack_tags: List[T]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.ack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.ack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report that you successfully processed messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ack_tags</strong> – a single ack tag or a list of ack tags of successful messages.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.ack_upto">
+<code class="descname">ack_upto</code><span class="sig-paren">(</span><em>ack_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.ack_upto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.ack_upto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report that you successfully processed all messages up to <cite>ack_tag</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ack_tag</strong> – the ack tag of the last successful message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the connection.</p>
+<p>If a msg is not acked until the disconnect, it is considered not delivered.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.nack">
+<code class="descname">nack</code><span class="sig-paren">(</span><em>ack_tags: List[T], requeue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.nack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.nack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report that you fail to process messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ack_tags</strong> – a list of ack tags of successful messages.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.nack_upto">
+<code class="descname">nack_upto</code><span class="sig-paren">(</span><em>ack_tag</em>, <em>requeue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.nack_upto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.nack_upto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report that you fail to process all messages up to <cite>ack_tag</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ack_tag</strong> – the ack tag of the last successful message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.one">
+<code class="descname">one</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consume one message. (blocking)
+After processing the message, you should call consumer.ack(ack_tag).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple (msg, ack_tag).</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raise:</dt><dd><p>raise on timeout.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RabbitConsumer.one_batch">
+<code class="descname">one_batch</code><span class="sig-paren">(</span><em>max_batch_size: int</em><span class="sig-paren">)</span> &#x2192; Tuple[List[T], List[T]]<a class="reference internal" href="_modules/tinder/queue.html#RabbitConsumer.one_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RabbitConsumer.one_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consume up to <cite>max_batch_size</cite> messages.
+Wait until at least one msg is available.
+After processing the message, you should call consumer.ack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_batch_size</strong> – the number of messages to consume.</p>
+</dd>
+</dl>
+<p>Returns: (List,List).
+The first is a list of messages.
+The second is a list of ack tags.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.queue.RedisQueue">
+<em class="property">class </em><code class="descclassname">tinder.queue.</code><code class="descname">RedisQueue</code><span class="sig-paren">(</span><em>queue: str</em>, <em>unique_history: bool = False</em>, <em>soft_capacity=None</em>, <em>redis_client=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>A FIFO queue based on Redis. Can be used by multiple workers.
+Workers can share the queue by specifying the same queue name.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">redis</span>
+<span class="kn">import</span> <span class="nn">tinder</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">tinder</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">RedisQueue</span><span class="p">(</span><span class="s1">&#39;q1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the name of a queue.</p></li>
+<li><p><strong>unique_history</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Any element that is ever pushed into the queue is not pushed again.</p></li>
+<li><p><strong>soft_capacity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The max size of queue. This is ‘soft’ because the queue can grow up to <cite>soft_capacity+(number of workers)-1</cite>.</p></li>
+<li><p><strong>redis_client</strong> – if not provided, the default one is created.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tinder.queue.RedisQueue.available">
+<code class="descname">available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue.available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue.available" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current size of the queue.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RedisQueue.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><em>history: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empty the queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>history</strong> – if True, clear all history as well. has no effect if <cite>unique_history</cite> is False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RedisQueue.pop_at_least_one">
+<code class="descname">pop_at_least_one</code><span class="sig-paren">(</span><em>max_num: int = 1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue.pop_at_least_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue.pop_at_least_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pop a batch of elements. return at least one.
+Wait if the queue is empty.
+Return immediately if the queue is not empty but smaller than <cite>max_num</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – maximum number of samples to pop.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of elements.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RedisQueue.pop_one">
+<code class="descname">pop_one</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue.pop_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue.pop_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pop an element.
+Wait if the queue is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an element.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.queue.RedisQueue.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/queue.html#RedisQueue.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.queue.RedisQueue.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append <cite>element</cite> to the queue.</p>
+<p>If <cite>soft_capacity</cite> is set and the queue is full, wait until a room is available.</p>
+<p>If <cite>unique_history</cite> is set, the ever-seen element is ignored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – an element of type that redis-py can encode.</p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batch.html" class="btn btn-neutral float-right" title="Visualize" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="metrics.html" class="btn btn-neutral float-left" title="Metrics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

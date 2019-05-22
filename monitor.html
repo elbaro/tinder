@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Monitor &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Optimizer" href="optimizer.html" />
+    <link rel="prev" title="Saver" href="saver.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saver.html">Saver</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="queue.html">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Monitor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/monitor.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="monitor">
+<h1>Monitor<a class="headerlink" href="#monitor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tinder.monitor.Stat">
+<em class="property">class </em><code class="descclassname">tinder.monitor.</code><code class="descname">Stat</code><span class="sig-paren">(</span><em>alpha: float = 0.6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/monitor.html#Stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.monitor.Stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>A small class that calculates the statistics for a scalar metric.
+This is useful to calcaulate accuracies and losses across minibatches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Defaults to 1. Weight(0~1) used for exponential moving average.
+A smaller weight reprsents more smooth average.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="tinder.monitor.Stat.count">
+<code class="descname">count</code><a class="headerlink" href="#tinder.monitor.Stat.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>the number of samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tinder.monitor.Stat.sum">
+<code class="descname">sum</code><a class="headerlink" href="#tinder.monitor.Stat.sum" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tinder.monitor.Stat.average">
+<code class="descname">average</code><a class="headerlink" href="#tinder.monitor.Stat.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>the average of samples. read-only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tinder.monitor.Stat.ema">
+<code class="descname">ema</code><a class="headerlink" href="#tinder.monitor.Stat.ema" title="Permalink to this definition">¶</a></dt>
+<dd><p>exponential moving average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tinder.monitor.Stat.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#tinder.monitor.Stat.alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>coefficient for exponential moving average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">average</code></dt>
+<dd><p>Average of all samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>average</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.monitor.Stat.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/monitor.html#Stat.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.monitor.Stat.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the history and reset stats to zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tinder.monitor.Stat.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>value</em>, <em>count: int = 1</em>, <em>is_mean=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/monitor.html#Stat.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.monitor.Stat.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update stats with new samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – new sample, or average of multiple samples.</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Defaults to 1. This is useful when batch size is not uniform.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tinder.monitor.Stats">
+<em class="property">class </em><code class="descclassname">tinder.monitor.</code><code class="descname">Stats</code><span class="sig-paren">(</span><em>**stats</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/monitor.html#Stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.monitor.Stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class that holds named stats.</p>
+<dl class="method">
+<dt id="tinder.monitor.Stats.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tinder/monitor.html#Stats.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tinder.monitor.Stats.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all stats.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="optimizer.html" class="btn btn-neutral float-right" title="Optimizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="saver.html" class="btn btn-neutral float-left" title="Saver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

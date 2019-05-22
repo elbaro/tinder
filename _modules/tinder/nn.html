@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tinder.nn &mdash; tinder 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> tinder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Training utils</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../saver.html">Saver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../monitor.html">Monitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../optimizer.html">Optimizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../visualize.html">Visualize</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extended classes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../image.html">Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nn.html">nn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metrics.html">Metrics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Serving</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../queue.html">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../batch.html">Visualize</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tinder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>tinder.nn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tinder.nn</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Tuple</span>
+
+
+<span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Identity"><a class="viewcode-back" href="../../nn.html#tinder.nn.Identity">[docs]</a><span class="k">class</span> <span class="nc">Identity</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Identity.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.Identity.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+<div class="viewcode-block" id="AssertSize"><a class="viewcode-back" href="../../nn.html#tinder.nn.AssertSize">[docs]</a><span class="k">class</span> <span class="nc">AssertSize</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assert that the input has the specified size.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        net = nn.Sequential(</span>
+<span class="sd">            tinder.nn.AssertSize(None, 3, 224, 224),</span>
+<span class="sd">            nn.Conv2d(3, 64, kernel_size=1, stride=2),</span>
+<span class="sd">            nn.Conv2d(64, 128, kernel_size=1, stride=2),</span>
+<span class="sd">            tinder.nn.AssertSize(None, 128, 64, 64),</span>
+<span class="sd">        )</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        size (iterable): an iterable of dimensions. Each dimension is one of -1, None, or positive integer.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;AssertSize(</span><span class="si">{self.size}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="AssertSize.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.AssertSize.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s2">&quot;expected rank {len(self.size)} but got a tensor of rank {len(size)}&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">expected</span><span class="p">,</span> <span class="n">given</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">given</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="n">f</span><span class="s2">&quot;expected size </span><span class="si">{self.size}</span><span class="s2"> but got a tensor of size </span><span class="si">{size}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Flatten"><a class="viewcode-back" href="../../nn.html#tinder.nn.Flatten">[docs]</a><span class="k">class</span> <span class="nc">Flatten</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A layer that flattens the input.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        net = nn.Sequential(</span>
+<span class="sd">            nn.Conv2d(..),</span>
+<span class="sd">            nn.BatchNorm2d(..),</span>
+<span class="sd">            nn.ReLU(),</span>
+
+<span class="sd">            nn.Conv2d(..),</span>
+<span class="sd">            nn.BatchNorm2d(..),</span>
+<span class="sd">            nn.ReLU(),</span>
+
+<span class="sd">            tinder.nn.Flatten(),</span>
+<span class="sd">            nn.Linear(3*3*512, 1024),</span>
+<span class="sd">        )</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: input tensor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Flatten.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.Flatten.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="View"><a class="viewcode-back" href="../../nn.html#tinder.nn.View">[docs]</a><span class="k">class</span> <span class="nc">View</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;nn.Module version of tensor.view().</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        layer = tinder.nn.View(3, -1, 256)</span>
+<span class="sd">        x = layer(x)</span>
+
+<span class="sd">    The batch dimension is implicit.</span>
+<span class="sd">    The above code is the same as `tensor.view(tensor.size(0), 3, -1, 256)`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        size_without_batch_dim (iterable): each dimension is one of -1, None, or positive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">size_without_batch_dim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">size_without_batch_dim</span><span class="p">]</span>
+
+<div class="viewcode-block" id="View.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.View.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WeightScale"><a class="viewcode-back" href="../../nn.html#tinder.nn.WeightScale">[docs]</a><span class="k">class</span> <span class="nc">WeightScale</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A weight normalizing layer used in PGGAN.</span>
+
+<span class="sd">    How it works:</span>
+
+<span class="sd">        1. Initialize your ConvLayer with weights from N(0, std=kaiming)</span>
+<span class="sd">        2. WeightScale calculates the initial std of weights (from 1)</span>
+<span class="sd">        3. Divide Conv.weights by std (from 2). Now Conv.weights are ~N(0,1)</span>
+<span class="sd">        4. On forward, WeightScale multiply the input by std (from 2).</span>
+<span class="sd">        5. Bias or Activation is applied after WeightScale. If Conv has bias, WeightScale steals it.</span>
+
+<span class="sd">    Note that the scale factor calculated in 2 is constant permanently.</span>
+
+<span class="sd">    Advantage:</span>
+
+<span class="sd">        The author of PGGAN claims Adam is better at training weights in N(0,1) than training conv weights of different std.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        conv = nn.Conv2d(3, 64, kernel_size=3, padding=1)</span>
+<span class="sd">        ws = tinder.nn.WeightScale(conv)</span>
+<span class="sd">        nn.Sequential(</span>
+<span class="sd">            conv,</span>
+<span class="sd">            ws</span>
+<span class="sd">        )</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        prev_layer: a layer (e.g. nn.Conv2d) with `weight` and optionally `bias`.</span>
+<span class="sd">        init_with_leakiness: if given, it initializes `prev_layer` with `kaiming_normal`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_layer</span><span class="p">,</span> <span class="n">init_with_leakiness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">init_with_leakiness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">kaiming_normal</span><span class="p">(</span><span class="n">prev_layer</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">init_with_leakiness</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">prev_layer</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mf">1e-8</span>
+        <span class="n">prev_layer</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">div_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">prev_layer</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">prev_layer</span><span class="o">.</span><span class="n">bias</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="n">prev_layer</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="WeightScale.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.WeightScale.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># param_str = &#39;(prev_layer = %s)&#39; % (self.prev_layer.__class__.__name__)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+
+
+<div class="viewcode-block" id="PixelwiseNormalize"><a class="viewcode-back" href="../../nn.html#tinder.nn.PixelwiseNormalize">[docs]</a><span class="k">class</span> <span class="nc">PixelwiseNormalize</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pixelwise Normalization used in PGGAN.</span>
+<span class="sd">        It normalizes the input [B,C,H,W] so that the L2 norms over the C dimension is 1.</span>
+<span class="sd">        There are B*H*W norms.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            x = tinder.PixelwiseNormalize()(x)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PixelwiseNormalize.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.PixelwiseNormalize.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="n">denominator</span></div></div>
+
+
+<span class="c1"># calculate std deviation for each feature in each location</span>
+<span class="c1"># scalar = average over all feature &amp; locations</span>
+<span class="c1"># broadcast to constant feature map</span>
+<div class="viewcode-block" id="MinibatchStddev"><a class="viewcode-back" href="../../nn.html#tinder.nn.MinibatchStddev">[docs]</a><span class="k">class</span> <span class="nc">MinibatchStddev</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer for GAN Discriminator used in PGGAN.</span>
+<span class="sd">        It penalizes when images in the minibatch look similar.</span>
+<span class="sd">        For example, G generates fall into mode collapse and generate similar images,</span>
+<span class="sd">        then stddev of the minibatch is small. D looks at the small stddev and thinks this is likely fake.</span>
+
+<span class="sd">        This layer calculates stddev and provide it as additional channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MinibatchStddev.forward"><a class="viewcode-back" href="../../nn.html#tinder.nn.MinibatchStddev.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (N, C, H, W)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (N, C+1, H, W): The last channel dimension is stddev.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">std</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">scalar</span> <span class="o">=</span> <span class="n">std</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>  <span class="c1"># [N,1,H,W]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">scalar</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">cross_entropy</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># If target label is out of range, the cross entropy is undefined.</span>
+    <span class="c1"># This is to prevent crashes.</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># target = torch.where(</span>
+    <span class="c1">#     target &gt;= 0 and target &lt; input.shape[1],</span>
+    <span class="c1">#     target,</span>
+    <span class="c1">#     ?</span>
+    <span class="c1"># )</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="loss_wgan_gp"><a class="viewcode-back" href="../../nn.html#tinder.nn.loss_wgan_gp">[docs]</a><span class="k">def</span> <span class="nf">loss_wgan_gp</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">real</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">fake</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Gradient Penalty for Wasserstein GAN.</span>
+
+<span class="sd">    It generates random interpolations between the real and fake points,</span>
+<span class="sd">    and tries to make grad norm close to 1.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        - The second-order derivative is unstable in PyTorch.</span>
+<span class="sd">          Some layers in your G/D may not work.</span>
+<span class="sd">        - It assumes CUDA.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        gp = tinder.nn.loss_wgan_gp(D, real_img, fake_img)</span>
+<span class="sd">        loss = D(fake)-D(real)+10*gp</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        D (callable): A discriminator. Typically `nn.Module` or a lambda function that returns the score.</span>
+<span class="sd">        real (torch.Tensor): real image batch.</span>
+<span class="sd">        fake (torch.Tensor): fake image batch.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (torch.Tensor): gradient penalty. optimizing on this loss will update D.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">real</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">real</span><span class="o">.</span><span class="n">new_empty</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">uniform_</span><span class="p">()</span>
+    <span class="n">x_hat</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">real</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">e</span><span class="p">)</span> <span class="o">*</span> <span class="n">fake</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="n">x_hat</span><span class="p">)</span>
+
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+        <span class="n">scores</span><span class="p">,</span>
+        <span class="n">x_hat</span><span class="p">,</span>
+        <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span>
+        <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">grads</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">norms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># def one_dimensional_euclidean_wasserstein_dist(x, y, p=2, weight_x=None, weight_y=None):</span>
+<span class="c1">#     &quot;&quot;&quot;1D wasserstein distance between p(X) and p(Y) where d(X,Y)=|X-Y|.</span>
+
+<div class="viewcode-block" id="one_dimensional_discrete_wasserstein_distance"><a class="viewcode-back" href="../../nn.html#tinder.nn.one_dimensional_discrete_wasserstein_distance">[docs]</a><span class="k">def</span> <span class="nf">one_dimensional_discrete_wasserstein_distance</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;1D wasserstein distance between p(class) and p(class) where d(cls1,cls2)=(cls2!=cls2).</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        px {torch.Tensor} -- [N,D]. N discrete distributions of shape [D] where p(1)+..p(D)=1</span>
+<span class="sd">        py {torch.Tensor} -- [N,D]</span>
+
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        p {int} -- [description] (default: {2})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># === ((px-py).abs().sum(dim=1)/(2.0)).mean()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">px</span><span class="o">-</span><span class="n">py</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="mf">2.0</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">px</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
+
+<span class="k">def</span> <span class="nf">test_one_dimensional_discrete_wasserstein_distance</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">pytest</span>
+    <span class="n">px</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.4</span><span class="p">]])</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([[</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">]])</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">one_dimensional_discrete_wasserstein_distance</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span><span class="o">==</span><span class="mf">0.3</span><span class="o">**</span><span class="mf">0.5</span>
+
+<div class="viewcode-block" id="sliced_wasserstein_distance"><a class="viewcode-back" href="../../nn.html#tinder.nn.sliced_wasserstein_distance">[docs]</a><span class="k">def</span> <span class="nf">sliced_wasserstein_distance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_cnt</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight_y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculated a stochastic sliced wasserstein distance between x and y.</span>
+
+<span class="sd">    c(x,y) = ||x-y||p</span>
+
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        x {torch.Tensor} -- A tensor of shape [N,*]. Samples from the distribution p(X)</span>
+<span class="sd">        y {torch.Tensor} -- A tensor of shape [N,*]. Samples from the distribution p(Y)</span>
+<span class="sd">        sample_cnt {int} -- A number of samples to estimate the distance</span>
+<span class="sd">        p {int} -- L_p is used to calculate sliced w-dist</span>
+<span class="sd">        weight_x {torch.Tensor} -- A tensor of shape [N] or None</span>
+<span class="sd">        weight_y {torch.Tensor} -- A tensor of shape [N] or None</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        scalar -- The sliced wasserstein distance (with gradient)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># x: [N,D]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># y: [N,D]</span>
+
+    <span class="n">unit_vector</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sample_cnt</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">unit_vector</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span>  <span class="c1"># each col has a norm 1</span>
+        <span class="n">unit_vector</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">unit_vector</span><span class="p">)</span>  <span class="c1">#  [N,D] * [D, samples] = [N,samples]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">unit_vector</span><span class="p">)</span>
+
+
+    <span class="n">sorted_x</span><span class="p">,</span> <span class="n">sort_index_x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [N,samples]</span>
+    <span class="n">sorted_y</span><span class="p">,</span> <span class="n">sort_index_y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [N,samples]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">weight_x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">weight_y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">w_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">sorted_x</span><span class="o">-</span><span class="n">sorted_y</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">weight_x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weight_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">weight_y</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">weight_y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">weight_y</span> <span class="o">=</span> <span class="n">weight_y</span><span class="p">[</span><span class="n">sort_index_y</span><span class="p">]</span>  <span class="c1"># [N,samples]</span>
+        <span class="n">w_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">sorted_x</span><span class="o">-</span><span class="n">sorted_y</span><span class="o">*</span><span class="n">weight_y</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">weight_y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weight_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">weight_x</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">weight_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">weight_x</span> <span class="o">=</span> <span class="n">weight_x</span><span class="p">[</span><span class="n">sort_index_x</span><span class="p">]</span>  <span class="c1"># [N,samples]</span>
+        <span class="n">w_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">sorted_x</span><span class="o">*</span><span class="n">weight_x</span><span class="o">-</span><span class="n">sorted_y</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">weight_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">weight_x</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">weight_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">weight_x</span> <span class="o">=</span> <span class="n">weight_x</span><span class="p">[</span><span class="n">sort_index_x</span><span class="p">]</span>  <span class="c1"># [N,samples]</span>
+        <span class="n">weight_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">weight_y</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">weight_y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">weight_y</span> <span class="o">=</span> <span class="n">weight_y</span><span class="p">[</span><span class="n">sort_index_y</span><span class="p">]</span>  <span class="c1"># [N,samples]</span>
+        <span class="n">w_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">sorted_x</span><span class="o">*</span><span class="n">weight_x</span><span class="o">-</span><span class="n">sorted_y</span><span class="o">*</span><span class="n">weight_y</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">w_dist</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="odin"><a class="viewcode-back" href="../../nn.html#tinder.nn.odin">[docs]</a><span class="k">def</span> <span class="nf">odin</span><span class="p">(</span>
+    <span class="n">network</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.0012</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Decide if we should reject the prediction for the given example x using ODIN.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        is_reject, max_p = tinder.nn.odin(resnet, imgs, threshold=0.003)</span>
+<span class="sd">        # assert (is_reject == (max_p&lt;0.003)).all()</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        network {nn.Module} -- A function returning logits</span>
+<span class="sd">        x {torch.Tensor} -- input of [B,*]</span>
+<span class="sd">        threshold {[type]} -- [description]</span>
+
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        T {int} -- A parameter for temperature scailing (default: {1000})</span>
+<span class="sd">        epsilon {float} -- A parameter for noisyness (default: {0.0012})</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor] -- (is_reject of shape [B], max_p of shape [B])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">network</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">T</span>
+    <span class="n">predict</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">negative_log_softmax</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span>
+        <span class="nb">input</span><span class="o">=</span><span class="n">logits</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">predict</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span>
+    <span class="p">)</span>
+    <span class="n">negative_grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">negative_log_softmax</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">x_noise</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">negative_grad</span><span class="o">.</span><span class="n">sign</span><span class="p">()</span>
+        <span class="n">max_p</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">network</span><span class="p">(</span><span class="n">x_noise</span><span class="p">)</span> <span class="o">/</span> <span class="n">T</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">reject</span> <span class="o">=</span> <span class="n">max_p</span> <span class="o">&lt;</span> <span class="n">threshold</span>
+
+    <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">reject</span><span class="p">,</span> <span class="n">max_p</span></div>
+
+
+<span class="k">def</span> <span class="nf">count_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">count_trainable_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, elbaro
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
