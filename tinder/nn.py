@@ -298,7 +298,7 @@ def test_one_dimensional_discrete_wasserstein_distance():
     px = torch.Tensor([[0.1,0.2,0.3,0.4]])
     py = torch.Tensor([[0.3,0.1,0.1,0.5]])
     dist = one_dimensional_discrete_wasserstein_distance(px, py, p=2).item()
-    assert pytest.approx(dist)==0.3
+    assert pytest.approx(dist)==0.3**0.5
 
 def sliced_wasserstein_distance(x, y, sample_cnt, p=2, weight_x=None, weight_y=None):
     """Calculated a stochastic sliced wasserstein distance between x and y.
@@ -349,7 +349,7 @@ def sliced_wasserstein_distance(x, y, sample_cnt, p=2, weight_x=None, weight_y=N
         weight_y = weight_y[sort_index_y]  # [N,samples]
         w_dist = (sorted_x*weight_x-sorted_y*weight_y).norm(p=p, dim=0).mean()
 
-    return w_dist
+    return w_dist.pow(1.0/p)
 
 
 def odin(
