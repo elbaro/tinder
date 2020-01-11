@@ -51,7 +51,7 @@ def bootstrap(*, logger_name="tinder", trace=True, pdb_on_error=True):
         log.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
             "%(asctime)s [%(filename)16s:%(lineno)3s] %(message)s",
-            datefmt="%m월%d일 %H시%M분",
+            datefmt="%m/%d %H:%M",
         )
 
         class TqdmLoggingHandler(logging.Handler):

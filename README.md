@@ -17,5 +17,17 @@ pip install tinder
 
 ```py
 import tinder
-```
 
+tinder.nn
+tinder.image
+tinder.config
+tinder.optimizer
+tinder.saver
+tinder.visualize
+tinder.metrics
+tinder.dataset
+tinder.monitor
+tinder.queue
+tinder.rl
+tinder.model
+```
