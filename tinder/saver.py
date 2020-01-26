@@ -158,7 +158,7 @@ class Saver(object):
 
         return True
 
-    def load_latest(self, dic: dict) -> bool:
+    def load_latest(self, dic: dict) -> int:
         """Load the latest model.
 
         Args:
@@ -171,13 +171,16 @@ class Saver(object):
         files = list(filter(lambda x: x.endswith(".pth"), os.listdir(self.dir_path)))
         if len(files) == 0:
             print("[tinder] no weights found in ", self.dir_path)
-            return False
+            return -1
 
         latest: str = max(files)
         assert latest.startswith("epoch_") and latest.endswith(".pth")
         epoch = int(latest[6:10])
 
-        return self.load(dic, epoch)
+        if self.load(dic, epoch):
+            return epoch
+
+        return -1
 
     def load_best(self, dic: dict) -> bool:
         """Load the best model.
@@ -186,7 +189,7 @@ class Saver(object):
             dic (dict): see save()
 
         Return:
-            SimpleNamespace
+            bool: If if the best epoch is available and loade. The epoch is available at self.best_epoch.
         """
 
         if self.best_epoch is not None:
