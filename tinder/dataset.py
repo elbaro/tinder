@@ -1,5 +1,6 @@
 import torch.utils.data
-from collections import Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable
 import torch.multiprocessing as tmp
 import multiprocessing as mp
 from typing import Callable
