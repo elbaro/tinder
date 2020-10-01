@@ -42,8 +42,7 @@ class AssertSize(nn.Module):
         return f"AssertSize({self.size})"
 
     def forward(self, x):
-        """
-        """
+        """"""
         size = x.size()
         if len(self.size) != len(size):
             raise RuntimeError(
@@ -174,12 +173,12 @@ class WeightScale(nn.Module):
 
 class PixelwiseNormalize(nn.Module):
     """Pixelwise Normalization used in PGGAN.
-        It normalizes the input [B,C,H,W] so that the L2 norms over the C dimension is 1.
-        There are B*H*W norms.
+    It normalizes the input [B,C,H,W] so that the L2 norms over the C dimension is 1.
+    There are B*H*W norms.
 
-        Example::
+    Example::
 
-            x = tinder.PixelwiseNormalize()(x)
+        x = tinder.PixelwiseNormalize()(x)
     """
 
     def forward(self, x):
@@ -192,11 +191,11 @@ class PixelwiseNormalize(nn.Module):
 # broadcast to constant feature map
 class MinibatchStddev(nn.Module):
     """Layer for GAN Discriminator used in PGGAN.
-        It penalizes when images in the minibatch look similar.
-        For example, G generates fall into mode collapse and generate similar images,
-        then stddev of the minibatch is small. D looks at the small stddev and thinks this is likely fake.
+    It penalizes when images in the minibatch look similar.
+    For example, G generates fall into mode collapse and generate similar images,
+    then stddev of the minibatch is small. D looks at the small stddev and thinks this is likely fake.
 
-        This layer calculates stddev and provide it as additional channel.
+    This layer calculates stddev and provide it as additional channel.
     """
 
     def __init__(self):
@@ -275,9 +274,9 @@ def loss_wgan_gp(D, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
     return ((norms - 1) ** 2).mean()
 
 
-
 # def one_dimensional_euclidean_wasserstein_dist(x, y, p=2, weight_x=None, weight_y=None):
 #     """1D wasserstein distance between p(X) and p(Y) where d(X,Y)=|X-Y|.
+
 
 def one_dimensional_discrete_wasserstein_distance(px, py, p=2):
     """1D wasserstein distance between p(class) and p(class) where d(cls1,cls2)=(cls2!=cls2).
@@ -291,14 +290,17 @@ def one_dimensional_discrete_wasserstein_distance(px, py, p=2):
     """
 
     # === ((px-py).abs().sum(dim=1)/(2.0)).mean()
-    return (px-py).abs().sum()/2.0/float(px.size(0))
+    return (px - py).abs().sum() / 2.0 / float(px.size(0))
+
 
 def test_one_dimensional_discrete_wasserstein_distance():
     import pytest
-    px = torch.Tensor([[0.1,0.2,0.3,0.4]])
-    py = torch.Tensor([[0.3,0.1,0.1,0.5]])
+
+    px = torch.Tensor([[0.1, 0.2, 0.3, 0.4]])
+    py = torch.Tensor([[0.3, 0.1, 0.1, 0.5]])
     dist = one_dimensional_discrete_wasserstein_distance(px, py, p=2).item()
-    assert pytest.approx(dist)==0.3**0.5
+    assert pytest.approx(dist) == 0.3 ** 0.5
+
 
 def sliced_wasserstein_distance(x, y, sample_cnt, p=2, weight_x=None, weight_y=None):
     """Calculated a stochastic sliced wasserstein distance between x and y.
@@ -328,28 +330,35 @@ def sliced_wasserstein_distance(x, y, sample_cnt, p=2, weight_x=None, weight_y=N
     x = torch.matmul(x, unit_vector)  #  [N,D] * [D, samples] = [N,samples]
     y = torch.matmul(y, unit_vector)
 
-
     sorted_x, sort_index_x = x.sort(dim=0)  # [N,samples]
     sorted_y, sort_index_y = y.sort(dim=0)  # [N,samples]
 
     if (weight_x is None) and (weight_y is None):
-        w_dist = (sorted_x-sorted_y).norm(p=p, dim=0).mean()
+        w_dist = (sorted_x - sorted_y).norm(p=p, dim=0).mean()
     elif weight_x is None:
-        weight_y = torch.nn.functional.normalize(weight_y, p=1, dim=0)*weight_y.shape[0]
+        weight_y = (
+            torch.nn.functional.normalize(weight_y, p=1, dim=0) * weight_y.shape[0]
+        )
         weight_y = weight_y[sort_index_y]  # [N,samples]
-        w_dist = (sorted_x-sorted_y*weight_y).norm(p=p, dim=0).mean()
+        w_dist = (sorted_x - sorted_y * weight_y).norm(p=p, dim=0).mean()
     elif weight_y is None:
-        weight_x = torch.nn.functional.normalize(weight_x, p=1, dim=0)*weight_x.shape[0]
+        weight_x = (
+            torch.nn.functional.normalize(weight_x, p=1, dim=0) * weight_x.shape[0]
+        )
         weight_x = weight_x[sort_index_x]  # [N,samples]
-        w_dist = (sorted_x*weight_x-sorted_y).norm(p=p, dim=0).mean()
+        w_dist = (sorted_x * weight_x - sorted_y).norm(p=p, dim=0).mean()
     else:
-        weight_x = torch.nn.functional.normalize(weight_x, p=1, dim=0)*weight_x.shape[0]
+        weight_x = (
+            torch.nn.functional.normalize(weight_x, p=1, dim=0) * weight_x.shape[0]
+        )
         weight_x = weight_x[sort_index_x]  # [N,samples]
-        weight_y = torch.nn.functional.normalize(weight_y, p=1, dim=0)*weight_y.shape[0]
+        weight_y = (
+            torch.nn.functional.normalize(weight_y, p=1, dim=0) * weight_y.shape[0]
+        )
         weight_y = weight_y[sort_index_y]  # [N,samples]
-        w_dist = (sorted_x*weight_x-sorted_y*weight_y).norm(p=p, dim=0).mean()
+        w_dist = (sorted_x * weight_x - sorted_y * weight_y).norm(p=p, dim=0).mean()
 
-    return w_dist.pow(1.0/p)
+    return w_dist.pow(1.0 / p)
 
 
 def odin(

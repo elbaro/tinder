@@ -56,8 +56,7 @@ class Stat(object):
         return None
 
     def clear(self):
-        """Clear the history and reset stats to zero.
-        """
+        """Clear the history and reset stats to zero."""
 
         self.ema = None  # ema = Exponential Moving Average
         self.count = 0
@@ -65,15 +64,13 @@ class Stat(object):
 
 
 class Stats(SimpleNamespace):
-    """A class that holds named stats.
-    """
+    """A class that holds named stats."""
 
     def __init__(self, **stats):
         super().__init__(**stats)
 
     def clear(self):
-        """Clear all stats.
-        """
+        """Clear all stats."""
         for stat in self.__dict__.values():
             stat.clear()
 

@@ -192,8 +192,7 @@ def hook(
 
 
 def unhook():
-    """Restore the default excepthook
-    """
+    """Restore the default excepthook"""
     sys.excepthook = sys.__excepthook__
 
 

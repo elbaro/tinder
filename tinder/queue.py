@@ -47,20 +47,20 @@ if _has_redis:
 
     class RedisQueue(object):
         """
-            A FIFO queue based on Redis. Can be used by multiple workers.
-            Workers can share the queue by specifying the same queue name.
+        A FIFO queue based on Redis. Can be used by multiple workers.
+        Workers can share the queue by specifying the same queue name.
 
-            Example::
+        Example::
 
-                import redis
-                import tinder
-                q = tinder.queue.RedisQueue('q1')
+            import redis
+            import tinder
+            q = tinder.queue.RedisQueue('q1')
 
-            Args:
-                queue (str): the name of a queue.
-                unique_history (bool): Any element that is ever pushed into the queue is not pushed again.
-                soft_capacity (int): The max size of queue. This is 'soft' because the queue can grow up to `soft_capacity+(number of workers)-1`.
-                redis_client: if not provided, the default one is created.
+        Args:
+            queue (str): the name of a queue.
+            unique_history (bool): Any element that is ever pushed into the queue is not pushed again.
+            soft_capacity (int): The max size of queue. This is 'soft' because the queue can grow up to `soft_capacity+(number of workers)-1`.
+            redis_client: if not provided, the default one is created.
         """
 
         def __init__(
@@ -171,17 +171,17 @@ if _has_pika:
 
     class RabbitConsumer(object):
         """
-            A RabbitMQ consumer that provides data in batch.
+        A RabbitMQ consumer that provides data in batch.
 
-            If the prefetch is 3*B, and you are processing messsages in batch of the size B,
-            the server sends you up to 2*B messages in advance.
+        If the prefetch is 3*B, and you are processing messsages in batch of the size B,
+        the server sends you up to 2*B messages in advance.
 
 
-            Args:
-                queue (str): the name of a queue.
-                prefetch (int): the number of msgs to prefetch. reommend: batch_size*3
-                host (str): the hostname to connect without port.
-                port (int): the port to connect
+        Args:
+            queue (str): the name of a queue.
+            prefetch (int): the number of msgs to prefetch. reommend: batch_size*3
+            host (str): the hostname to connect without port.
+            port (int): the port to connect
 
         """
 
@@ -338,14 +338,14 @@ if _has_pika:
 
     class RabbitProducer(object):
         """
-            A RabbitMQ consumer that provides data in batch.
+        A RabbitMQ consumer that provides data in batch.
 
-            If channel is given, host and port are ignored.
-            If channel is not given, host and port are used to create a new channel.
+        If channel is given, host and port are ignored.
+        If channel is not given, host and port are used to create a new channel.
 
-            Args:
-                channel (BlockingChannel): the channel instance with ack enabled.
-                queue (str): the name of a queue.
+        Args:
+            channel (BlockingChannel): the channel instance with ack enabled.
+            queue (str): the name of a queue.
         """
 
         def __init__(
@@ -436,8 +436,7 @@ if _has_kafka:
             self.producer.produce(self.topic, msg.encode(), callback=None)
 
         def flush(self):
-            """flush the reamining kafka messages.
-            """
+            """flush the reamining kafka messages."""
 
             self.producer.flush()
 

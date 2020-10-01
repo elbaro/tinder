@@ -4,9 +4,6 @@ import numpy as np
 from typing import NamedTuple, List
 from PIL import Image
 
-if "post" not in Image.PILLOW_VERSION:
-    print("[tinder warning] You have /pillow/ instead of /pillow-simd/.")
-
 
 class BoundingBox(NamedTuple):
     """

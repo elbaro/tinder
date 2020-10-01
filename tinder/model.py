@@ -13,9 +13,7 @@ class Model(object):
         "adam": torch.optim.Adam,
     }
 
-    def __init__(
-        self, name, net, opt=None, weight_dir=None, load="latest"
-    ):
+    def __init__(self, name, net, opt=None, weight_dir=None, load="latest"):
         self.name = name
         self.net = net
         if isinstance(opt, torch.optim.Optimizer):
@@ -134,9 +132,10 @@ class Model(object):
     ):
         if log_dir is not None:
             from torch.utils.tensorboard import SummaryWriter
-            train_logger = SummaryWriter(os.path.join(log_dir,'train'))
+
+            train_logger = SummaryWriter(os.path.join(log_dir, "train"))
             if eval_minibatch_fn is not None:
-                eval_logger = SummaryWriter(os.path.join(log_dir,'validation'))
+                eval_logger = SummaryWriter(os.path.join(log_dir, "validation"))
 
         if interactive:
             YELLOW = Fore.YELLOW
@@ -168,7 +167,6 @@ class Model(object):
             if log_dir is not None:
                 for (k, v) in metrics.items():
                     train_logger.add_scalar(k, v, epoch)
-
 
             train_msg = ""
             for (k, v) in metrics.items():
